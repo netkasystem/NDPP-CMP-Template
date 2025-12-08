@@ -1,0 +1,70 @@
+name: netka-cmp
+displayName: Netka CMP
+id: netkasystem.netka_cmp
+version: 1.0.0
+releaseStatus: stable
+releaseDate: 2024-01-01
+description: >-
+  Netka CMP installs Netka System's consent management platform through Google Tag
+  Manager, shows cookie banners, updates consent state, and keeps Consent Mode
+  synchronized with every consent type.
+documentation:
+  overview: https://github.com/netkasystem/NDPP-CMP-Template
+  googleTemplates: https://developers.google.com/tag-platform/tag-manager/templates
+supportEmail: support@netkasystem.co.th
+website: https://netkasystem.com
+tags:
+  - consent
+  - privacy
+  - gdpr
+  - pdpa
+  - gtm
+supportedPlatforms:
+  - WEB
+permissions:
+  - logging
+  - inject_script
+  - access_consent
+  - access_globals
+  - write_data_layer
+  - get_cookies
+parameters:
+  - name: apiURL
+    displayName: Netka CMP URL
+    type: TEXT
+    required: true
+    default: https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js
+    description: URL of the Netka CMP script that returns consent configuration.
+  - name: apiKey
+    displayName: API Key
+    type: TEXT
+    required: true
+    description: Private API key supplied by Netka System for each GTM container.
+autoBlock:
+  description: >-
+    When enabled, the CMP injects a helper script from pdpanetka.com to auto block
+    tags before consent is captured; this requires the same inject-script permission.
+consentTypes:
+  - ad_storage
+  - analytics_storage
+  - functionality_storage
+  - personalization_storage
+  - security_storage
+setupSteps:
+  - Create a new tag in GTM and choose the Netka CMP template.
+  - Enter the Netka CMP URL and API key, then save the tag.
+  - Use a Consent Initialization or high-priority All Pages trigger so consent
+    state is ready before other tags fire.
+  - In advanced settings, give the tag a high firing priority (for example, 999)
+    and place it ahead of tags that require consent.
+features:
+  - Automatic consent banner rendering and user choice capture from Netka CMP.
+  - Updates Google Consent Mode v2 state for every managed consent type.
+  - Optional AutoBlock helper script to pause non-consented scripts until a
+    decision is made.
+  - Logs key events in GTM Debug mode for easier troubleshooting.
+releaseNotes:
+  - version: 1.0.0
+    summary: >
+      Initial release with Netka CMP integration, consent state syncing, and
+      Google Consent Mode v2 support via GTM custom template.
