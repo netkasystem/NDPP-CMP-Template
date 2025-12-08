@@ -15,5 +15,5 @@
 homepage: "https://www.netkasystem.co.th"
 documentation: "https://netkasystem.com/user-guide-implementing-google-consent-mode-v2-with-netka-data-privacy-protection/"
 versions:
-  - sha: 5c23b10f768e6fedfb16bf3370bc1b1c2a58e9b5
+  - sha: f71d606181cc899af5ccf644180eb0d6b797d773
     changeNotes: Initial release - Netka CMP integration with Google Consent Mode v2 support
