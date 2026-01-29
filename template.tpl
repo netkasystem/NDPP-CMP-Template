@@ -51,6 +51,47 @@ ___TEMPLATE_PARAMETERS___
         ]
       }
     ]
+  },
+  {
+    "type": "GROUP",
+    "name": "consentModeSettings",
+    "displayName": "Google Consent Mode v2",
+    "groupStyle": "ZIPPY_OPEN",
+    "subParams": [
+      {
+        "type": "CHECKBOX",
+        "name": "enableConsentMode",
+        "displayName": "Enable Default Consent State",
+        "simpleValueType": true,
+        "defaultValue": true
+      },
+      {
+        "type": "TEXT",
+        "name": "waitForUpdate",
+        "displayName": "wait_for_update timeout (ms)",
+        "simpleValueType": true,
+        "defaultValue": "500",
+        "valueValidators": [
+          {
+            "type": "POSITIVE_NUMBER"
+          }
+        ],
+        "enablingConditions": [
+          {
+            "paramName": "enableConsentMode",
+            "paramValue": true,
+            "type": "EQUALS"
+          }
+        ]
+      },
+      {
+        "type": "CHECKBOX",
+        "name": "enableAutoBlock",
+        "displayName": "Enable Auto-Block Script",
+        "simpleValueType": true,
+        "defaultValue": false
+      }
+    ]
   }
 ]
 
@@ -59,41 +100,51 @@ ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 
 const log = require('logToConsole');
 const injectScript = require('injectScript');
-const callInWindow = require('callInWindow');
 const setDefaultConsentState = require('setDefaultConsentState');
-const updateConsentState = require('updateConsentState');
 const queryPermission = require('queryPermission');
-
-const copyFromWindow = require('copyFromWindow');
-const callLater = require('callLater');
-const setInWindow = require('setInWindow');
-const Object = require('Object');
-const getCookie = require('getCookieValues');
 const gtagSet = require('gtagSet');
 
-const LOGTAG = "NETKA.CMP >";
+const LOGTAG = 'NETKA.CMP >';
 
-var apiURL = data.apiURL ? data.apiURL : 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js';
-var apiKey = data.apiKey;
-var useAutoBlock = data.useAutoBlock;
-var autoBlockURL = "https://cookiebanner.pdpanetka.com/nksAutoBlock.min.js";
+// Step 1: Set developer ID
+gtagSet('developer_id.dYmE5Zm', true);
 
-if(useAutoBlock){
-  if(queryPermission('inject_script', autoBlockURL)){
-    injectScript(autoBlockURL, data.gtmOnSuccess, data.gtmOnFailure);
-    log(LOGTAG, "AutoBlock injected");
+// Step 2: Set default consent state (all denied)
+if (data.enableConsentMode) {
+  var defaultState = {
+    'ad_storage': 'denied',
+    'ad_user_data': 'denied',
+    'ad_personalization': 'denied',
+    'analytics_storage': 'denied',
+    'functionality_storage': 'denied',
+    'personalization_storage': 'denied',
+    'security_storage': 'granted',
+    'wait_for_update': data.waitForUpdate ? data.waitForUpdate * 1 : 500
+  };
+  setDefaultConsentState(defaultState);
+  log(LOGTAG, 'Default consent state set (all denied).');
+}
+
+// Step 3: Inject AutoBlock script (if enabled)
+if (data.enableAutoBlock) {
+  var autoBlockURL = 'https://cookiebanner.pdpanetka.com/nksAutoBlock.min.js';
+  if (queryPermission('inject_script', autoBlockURL)) {
+    injectScript(autoBlockURL, function() {
+      log(LOGTAG, 'AutoBlock injected.');
+    }, data.gtmOnFailure);
   } else {
-    log(LOGTAG, "No permission for AutoBlock");
-    data.gtmOnFailure();
+    log(LOGTAG, 'No permission for AutoBlock.');
   }
 }
 
-const scriptURL = apiURL+'/?key='+apiKey;
+// Step 4: Inject CMP script
+var apiURL = data.apiURL || 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js';
+var scriptURL = apiURL + '/?key=' + data.apiKey;
 if (queryPermission('inject_script', scriptURL)) {
-    injectScript(scriptURL, data.gtmOnSuccess, data.gtmOnFailure);
+  injectScript(scriptURL, data.gtmOnSuccess, data.gtmOnFailure);
 } else {
-    data.gtmOnFailure();
-    log(LOGTAG,'Netka CMP Script does not have permission to be injected.');
+  log(LOGTAG, 'Netka CMP Script does not have permission to be injected.');
+  data.gtmOnFailure();
 }
 
 
@@ -307,6 +358,68 @@ ___WEB_PERMISSIONS___
                   {
                     "type": 1,
                     "string": "security_storage"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  }
+                ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "consentType"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "ad_user_data"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  }
+                ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "consentType"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "ad_personalization"
                   },
                   {
                     "type": 8,
