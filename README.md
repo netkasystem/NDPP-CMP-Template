@@ -139,6 +139,7 @@ Enable **Debug Mode** in GTM Preview:
 
 ## 📚 Additional Resources
 
+- [Netka Consent Mode v2, Basic/Advanced, regional and GTG guide](docs/google-consent-mode-v2-and-gtg.md)
 - [Google Consent Mode Documentation](https://developers.google.com/tag-platform/security/guides/consent)
 - [GTM Custom Templates Guide](https://developers.google.com/tag-platform/tag-manager/templates)
 

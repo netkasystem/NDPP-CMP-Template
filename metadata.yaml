@@ -13,7 +13,7 @@
 # limitations under the License.
 
 homepage: "https://netkasystem.com"
-documentation: "https://github.com/netkasystem/NDPP-CMP-Template#readme"
+documentation: "https://github.com/netkasystem/NDPP-CMP-Template/blob/main/docs/google-consent-mode-v2-and-gtg.md"
 versions:
   - sha: 4cccb355cb5980dd7779fa97c3ef5eb046819606
     changeNotes: Adds explicit fail-closed regional fallback, validates live consent updates and API keys, enforces asynchronous wait bounds, and expands automated tests
