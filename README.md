@@ -44,6 +44,13 @@ Netka CMP is a Google Tag Manager custom template that integrates cookie consent
 | **Netka CMP URL** | API endpoint for cookie settings | `https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js` |
 | **API Key** | Your unique Netka CMP API key | Provided by Netka System |
 
+The default `ndppdev.netkasystem.co.th` URL is the controlled endpoint used for
+Google CMP review and certification testing. Commercial SaaS customers use a
+tenant-specific HTTPS host under `*.pdpanetka.com` (for example,
+`https://customer.pdpanetka.com/...`); the literal wildcard is a permission
+pattern, not a URL to enter in the tag. Both host families are allowlisted by
+the template's Inject Script permission.
+
 ### Setup Instructions
 
 1. **Create a New Tag**
