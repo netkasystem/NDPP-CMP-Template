@@ -142,7 +142,6 @@ const injectScript = require('injectScript');
 const setDefaultConsentState = require('setDefaultConsentState');
 const updateConsentState = require('updateConsentState');
 const getCookieValues = require('getCookieValues');
-const callInWindow = require('callInWindow');
 const setInWindow = require('setInWindow');
 const JSON = require('JSON');
 const queryPermission = require('queryPermission');
@@ -313,13 +312,6 @@ var apiURL = data.apiURL || 'https://ndppdev.netkasystem.co.th/api/cookie/cookie
 var scriptURL = apiURL + '/?key=' + data.apiKey;
 if (queryPermission('inject_script', scriptURL)) {
   injectScript(scriptURL, function() {
-    if (data.enableConsentMode && queryPermission('access_globals', 'execute', 'addNksConsentListener')) {
-      try {
-        callInWindow('addNksConsentListener', onUserConsent);
-      } catch (e) {
-        log(LOGTAG, 'CMP listener registration will use the pre-installed bridge.');
-      }
-    }
     data.gtmOnSuccess();
   }, data.gtmOnFailure);
 } else {
@@ -633,45 +625,6 @@ ___WEB_PERMISSIONS___
           "value": {
             "type": 2,
             "listItem": [
-              {
-                "type": 3,
-                "mapKey": [
-                  {
-                    "type": 1,
-                    "string": "key"
-                  },
-                  {
-                    "type": 1,
-                    "string": "read"
-                  },
-                  {
-                    "type": 1,
-                    "string": "write"
-                  },
-                  {
-                    "type": 1,
-                    "string": "execute"
-                  }
-                ],
-                "mapValue": [
-                  {
-                    "type": 1,
-                    "string": "addNksConsentListener"
-                  },
-                  {
-                    "type": 8,
-                    "boolean": true
-                  },
-                  {
-                    "type": 8,
-                    "boolean": false
-                  },
-                  {
-                    "type": 8,
-                    "boolean": true
-                  }
-                ]
-              },
               {
                 "type": 3,
                 "mapKey": [
