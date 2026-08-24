@@ -183,13 +183,14 @@ const toConsentState = function(consent) {
   }
   var categories = consent.categories || consent;
   var targeting = categories.Targeting && categories.Targeting.wanted === true;
-  var social = categories.SocialMedia && categories.SocialMedia.wanted === true;
   var performance = categories.Performance && categories.Performance.wanted === true;
   var functional = categories.Functional && categories.Functional.wanted === true;
   var necessary = !categories.Necessary || categories.Necessary.wanted !== false;
   return {
-    ad_storage: targeting || social ? 'granted' : 'denied',
-    ad_user_data: targeting || social ? 'granted' : 'denied',
+    // SocialMedia alone does not authorize Google advertising processing.
+    // Advertising-capable services must also be classified under Targeting.
+    ad_storage: targeting ? 'granted' : 'denied',
+    ad_user_data: targeting ? 'granted' : 'denied',
     ad_personalization: targeting ? 'granted' : 'denied',
     analytics_storage: performance ? 'granted' : 'denied',
     functionality_storage: functional ? 'granted' : 'denied',
@@ -819,10 +820,33 @@ scenarios:
       personalization_storage: 'denied',
       security_storage: 'granted'
     });
+- name: social media alone does not grant Google advertising
+  code: |-
+    mock('getCookieValues', function(name) {
+      if (name === 'cconsent') {
+        return ['{"categories":{"Necessary":{"wanted":true},"SocialMedia":{"wanted":true},"Targeting":{"wanted":false}}}'];
+      }
+      return [];
+    });
+    mock('injectScript', function(url, onSuccess) { onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '500'
+    });
+    assertApi('updateConsentState').wasCalledWith({
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      security_storage: 'granted'
+    });
 
 
 ___NOTES___
 
 Created on 11/28/2025, 5:30:00 PM
-
 
