@@ -290,7 +290,21 @@ if (data.enableConsentMode) {
   }
 }
 
-// Step 3: Inject AutoBlock script (if enabled)
+// Complete exactly once. If AutoBlock is requested it must load before the CMP
+// script; otherwise parallel callbacks can report both failure and success and
+// the banner can race its blocker.
+const injectCmpScript = function() {
+  var apiURL = data.apiURL || 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js';
+  var scriptURL = apiURL + '/?key=' + data.apiKey;
+  if (!queryPermission('inject_script', scriptURL)) {
+    log(LOGTAG, 'Netka CMP Script does not have permission to be injected.');
+    data.gtmOnFailure();
+    return;
+  }
+  injectScript(scriptURL, data.gtmOnSuccess, data.gtmOnFailure);
+};
+
+// Step 3/4: optionally inject AutoBlock, then inject the CMP script.
 if (data.enableAutoBlock) {
   // The GTM template already owns consent defaults. Tell AutoBlock not to push
   // a second global denied default that could override regional settings.
@@ -301,22 +315,17 @@ if (data.enableAutoBlock) {
   if (queryPermission('inject_script', autoBlockURL)) {
     injectScript(autoBlockURL, function() {
       log(LOGTAG, 'AutoBlock injected.');
-    }, data.gtmOnFailure);
+      injectCmpScript();
+    }, function() {
+      log(LOGTAG, 'AutoBlock injection failed.');
+      data.gtmOnFailure();
+    });
   } else {
     log(LOGTAG, 'No permission for AutoBlock.');
+    data.gtmOnFailure();
   }
-}
-
-// Step 4: Inject CMP script
-var apiURL = data.apiURL || 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js';
-var scriptURL = apiURL + '/?key=' + data.apiKey;
-if (queryPermission('inject_script', scriptURL)) {
-  injectScript(scriptURL, function() {
-    data.gtmOnSuccess();
-  }, data.gtmOnFailure);
 } else {
-  log(LOGTAG, 'Netka CMP Script does not have permission to be injected.');
-  data.gtmOnFailure();
+  injectCmpScript();
 }
 
 
@@ -978,6 +987,18 @@ scenarios:
       enableAutoBlock: true
     });
     assertApi('setInWindow').wasCalledWith('__nksCmpDefaultSet', true, true);
+- name: AutoBlock failure stops CMP injection and reports only failure
+  code: |-
+    mock('injectScript', function(url, onSuccess, onFailure) { onFailure(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      enableAutoBlock: true
+    });
+    assertApi('gtmOnFailure').wasCalled();
+    assertApi('gtmOnSuccess').wasNotCalled();
 
 
 ___NOTES___
