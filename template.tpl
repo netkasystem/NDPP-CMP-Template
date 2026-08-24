@@ -293,6 +293,11 @@ if (data.enableConsentMode) {
 
 // Step 3: Inject AutoBlock script (if enabled)
 if (data.enableAutoBlock) {
+  // The GTM template already owns consent defaults. Tell AutoBlock not to push
+  // a second global denied default that could override regional settings.
+  if (data.enableConsentMode && queryPermission('access_globals', 'write', '__nksCmpDefaultSet')) {
+    setInWindow('__nksCmpDefaultSet', true, true);
+  }
   var autoBlockURL = 'https://cookiebanner.pdpanetka.com/nksAutoBlock.min.js';
   if (queryPermission('inject_script', autoBlockURL)) {
     injectScript(autoBlockURL, function() {
@@ -705,6 +710,45 @@ ___WEB_PERMISSIONS___
                     "boolean": true
                   }
                 ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "key"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  },
+                  {
+                    "type": 1,
+                    "string": "execute"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "__nksCmpDefaultSet"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
+                  }
+                ]
               }
             ]
           }
@@ -963,6 +1007,24 @@ scenarios:
       enableAutoBlock: false
     });
     assertApi('gtmOnFailure').wasCalled();
+- name: AutoBlock does not override GTM managed defaults
+  code: |-
+    mock('injectScript', function(url, onSuccess) { onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      defaultSettings: [
+        {
+          region: '',
+          granted: 'ad_storage,analytics_storage,ad_user_data,ad_personalization',
+          denied: ''
+        }
+      ],
+      enableAutoBlock: true
+    });
+    assertApi('setInWindow').wasCalledWith('__nksCmpDefaultSet', true, true);
 
 
 ___NOTES___
