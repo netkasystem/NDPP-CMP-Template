@@ -15,6 +15,8 @@
 homepage: "https://www.netkasystem.co.th"
 documentation: "https://netkasystem.com/user-guide-implementing-google-consent-mode-v2-with-netka-data-privacy-protection/"
 versions:
+  - sha: 4cccb355cb5980dd7779fa97c3ef5eb046819606
+    changeNotes: Adds explicit fail-closed regional fallback, validates live consent updates and API keys, enforces asynchronous wait bounds, and expands automated tests
   - sha: 1cf14f4eb91cb093034e41b1370e307dd00c10ec
     changeNotes: Hardens fail-closed defaults, prevents duplicate defaults and updates, serializes script injection, and documents audit versus SaaS endpoints
   - sha: e7ab3f493d62252b5b97aabc9e739782540b1dd2
