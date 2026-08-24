@@ -43,7 +43,7 @@ Netka provides two distinct deployment paths.
 
 Basic mode disables Consent Mode `default` and `update` commands and blocks GTM
 until the visitor makes an affirmative choice. The AutoBlock bootstrap must be
-placed directly in the page before every Google tag or GTM container:
+placed directly in the page before the Netka banner:
 
 ```html
 <script>
@@ -52,13 +52,16 @@ window.NKS_CONSENT_MODE_CONFIG = { mode: "basic" };
 <script src="https://cookiebanner.pdpanetka.com/nksAutoBlock.min.js"></script>
 ```
 
-Load the customer-specific Netka banner immediately after AutoBlock. Do not
-load GTM or `gtag.js` above this bootstrap. After Accept, Netka loads the saved
-GTM ID; Reject keeps it blocked. Returning accepted and rejected choices must
-be checked in browser QA.
+Load the customer-specific Netka banner immediately after AutoBlock. Remove
+static GTM, `gtag.js`, Google Analytics, Ads and DoubleClick script elements
+from the page and let the configured Netka loader inject them only after
+consent. Merely placing AutoBlock above a parser-inserted static script is not
+a supported blocking guarantee. Recognized Google URLs added later through
+patched DOM APIs are neutralized as defense in depth. After Accept, Netka loads
+the saved GTM ID; Reject keeps it blocked. Returning accepted and rejected
+choices must be checked in browser QA.
 
-AutoBlock also neutralizes static `gtm.js`, `gtag.js`, Google Analytics, Ads,
-and DoubleClick script URLs in Basic mode. A monolithic GTM container is
+A monolithic GTM container is
 released only after Accept All (or all configured optional purposes are
 granted). A partial granular choice does not release the whole container,
 because doing so could activate tags for an ungranted purpose. Customers that
