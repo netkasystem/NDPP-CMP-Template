@@ -149,6 +149,15 @@ const queryPermission = require('queryPermission');
 const gtagSet = require('gtagSet');
 
 const LOGTAG = 'NETKA.CMP >';
+const CONSENT_TYPES = {
+  ad_storage: true,
+  analytics_storage: true,
+  ad_user_data: true,
+  ad_personalization: true,
+  functionality_storage: true,
+  personalization_storage: true,
+  security_storage: true
+};
 
 // Step 1: Set developer ID
 gtagSet('developer_id.dYmE5Zm', true);
@@ -162,17 +171,65 @@ const splitInput = function(input) {
   });
 };
 
+const isAsciiAlpha = function(value) {
+  if (!value) return false;
+  for (var i = 0; i < value.length; i++) {
+    if ('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(value.charAt(i)) < 0) return false;
+  }
+  return true;
+};
+
+const isAsciiAlphaNumeric = function(value) {
+  if (!value) return false;
+  for (var i = 0; i < value.length; i++) {
+    if ('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.indexOf(value.charAt(i)) < 0) return false;
+  }
+  return true;
+};
+
+const normalizeRegion = function(value) {
+  var region = value.toUpperCase();
+  if (region.length === 2 && isAsciiAlpha(region)) return region;
+  var parts = region.split('-');
+  if (parts.length === 2 && parts[0].length === 2 && isAsciiAlpha(parts[0])
+      && parts[1].length >= 1 && parts[1].length <= 3 && isAsciiAlphaNumeric(parts[1])) {
+    return region;
+  }
+  return null;
+};
+
+const baseDeniedDefault = function() {
+  return {
+    ad_storage: 'denied',
+    analytics_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    functionality_storage: 'denied',
+    personalization_storage: 'denied',
+    security_storage: 'granted'
+  };
+};
+
+const waitForUpdate = function() {
+  var wait = data.waitForUpdate * 1;
+  return wait >= 0 && wait <= 10000 ? wait : 500;
+};
+
 const parseDefaultSettings = function(settings) {
-  var command = {};
-  var regions = splitInput(settings.region);
+  var command = baseDeniedDefault();
+  var rawRegions = splitInput(settings.region);
+  var regions = rawRegions.map(normalizeRegion).filter(function(region) { return region !== null; });
+  // Never turn an invalid regional row into a global grant. Skip it so the
+  // global denied fallback can take over when no other valid row exists.
+  if (rawRegions.length && !regions.length) return null;
   splitInput(settings.granted).forEach(function(consentType) {
-    command[consentType] = 'granted';
+    if (CONSENT_TYPES[consentType]) command[consentType] = 'granted';
   });
   splitInput(settings.denied).forEach(function(consentType) {
-    command[consentType] = 'denied';
+    if (CONSENT_TYPES[consentType]) command[consentType] = 'denied';
   });
   if (regions.length) command.region = regions;
-  command.wait_for_update = data.waitForUpdate ? data.waitForUpdate * 1 : 500;
+  command.wait_for_update = waitForUpdate();
   return command;
 };
 
@@ -207,22 +264,14 @@ const onUserConsent = function(consent) {
 // Step 2: Set regional defaults. The legacy fallback remains global denied.
 if (data.enableConsentMode) {
   var rows = data.defaultSettings || [];
-  if (rows.length) {
-    rows.forEach(function(settings) {
-      setDefaultConsentState(parseDefaultSettings(settings));
-    });
+  var commands = rows.map(parseDefaultSettings).filter(function(command) { return command !== null; });
+  if (commands.length) {
+    commands.forEach(function(command) { setDefaultConsentState(command); });
     log(LOGTAG, 'Regional consent defaults set.');
   } else {
-    setDefaultConsentState({
-      'ad_storage': 'denied',
-      'ad_user_data': 'denied',
-      'ad_personalization': 'denied',
-      'analytics_storage': 'denied',
-      'functionality_storage': 'denied',
-      'personalization_storage': 'denied',
-      'security_storage': 'granted',
-      'wait_for_update': data.waitForUpdate ? data.waitForUpdate * 1 : 500
-    });
+    var fallback = baseDeniedDefault();
+    fallback.wait_for_update = waitForUpdate();
+    setDefaultConsentState(fallback);
     log(LOGTAG, 'Default consent state set (global denied fallback).');
   }
 
@@ -786,6 +835,9 @@ scenarios:
       analytics_storage: 'granted',
       ad_user_data: 'granted',
       ad_personalization: 'granted',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      security_storage: 'granted',
       wait_for_update: 500
     });
     assertApi('setDefaultConsentState').wasCalledWith({
@@ -793,8 +845,64 @@ scenarios:
       analytics_storage: 'denied',
       ad_user_data: 'denied',
       ad_personalization: 'denied',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      security_storage: 'granted',
       region: ['DE', 'FR'],
       wait_for_update: 500
+    });
+- name: invalid regional configuration fails closed
+  code: |-
+    mock('injectScript', function(url, onSuccess) { onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: 'not-a-number',
+      defaultSettings: [
+        {
+          region: 'EEA',
+          granted: 'ad_storage,analytics_storage,ad_user_data,ad_personalization,unknown_storage',
+          denied: ''
+        }
+      ]
+    });
+    assertApi('setDefaultConsentState').wasCalledWith({
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      security_storage: 'granted',
+      wait_for_update: 500
+    });
+- name: valid rows fill unspecified consent types safely
+  code: |-
+    mock('injectScript', function(url, onSuccess) { onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '750',
+      defaultSettings: [
+        {
+          region: 'us-ca',
+          granted: 'analytics_storage,unknown_storage',
+          denied: ''
+        }
+      ]
+    });
+    assertApi('setDefaultConsentState').wasCalledWith({
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'granted',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      security_storage: 'granted',
+      region: ['US-CA'],
+      wait_for_update: 750
     });
 - name: stored granular consent uses GTM update API
   code: |-
@@ -844,9 +952,19 @@ scenarios:
       personalization_storage: 'denied',
       security_storage: 'granted'
     });
+- name: CMP injection failure reports template failure
+  code: |-
+    mock('injectScript', function(url, onSuccess, onFailure) { onFailure(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      enableAutoBlock: false
+    });
+    assertApi('gtmOnFailure').wasCalled();
 
 
 ___NOTES___
 
 Created on 11/28/2025, 5:30:00 PM
-
