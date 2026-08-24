@@ -57,6 +57,14 @@ load GTM or `gtag.js` above this bootstrap. After Accept, Netka loads the saved
 GTM ID; Reject keeps it blocked. Returning accepted and rejected choices must
 be checked in browser QA.
 
+AutoBlock also neutralizes static `gtm.js`, `gtag.js`, Google Analytics, Ads,
+and DoubleClick script URLs in Basic mode. A monolithic GTM container is
+released only after Accept All (or all configured optional purposes are
+granted). A partial granular choice does not release the whole container,
+because doing so could activate tags for an ungranted purpose. Customers that
+need granular Basic loading must separate tags by purpose and apply equivalent
+purpose-specific blocking/triggers during implementation review.
+
 A GTM template cannot retroactively block the GTM container that is already
 executing it. Therefore, do not describe a CMP tag installed inside GTM as a
 Basic-mode installation. Use the direct pre-GTM bootstrap above.
