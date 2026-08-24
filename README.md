@@ -5,7 +5,7 @@
 
 ## 📋 Overview
 
-Netka CMP (Consent Management Platform) is a Google Tag Manager custom template that integrates cookie consent management into your website. It handles consent buttons, updates consent state, and supports Google Consent Mode for GDPR/PDPA compliance.
+Netka CMP is a Google Tag Manager custom template that integrates cookie consent management with Google Consent Mode. Consent Mode changes how Google tags behave based on consent signals; legal compliance still depends on each organization's policies, configuration, notices, and applicable law.
 
 ## ✨ Features
 
@@ -20,7 +20,7 @@ Netka CMP (Consent Management Platform) is a Google Tag Manager custom template 
 
 ### Method 1: Import Template File
 
-1. Download the `Netka CMP.tpl` file from this repository
+1. Download the `template.tpl` file from this repository
 2. Open your Google Tag Manager container
 3. Navigate to **Templates** → **Tag Templates**
 4. Click **New** → **More Actions** → **Import**
@@ -31,7 +31,7 @@ Netka CMP (Consent Management Platform) is a Google Tag Manager custom template 
 
 1. Go to Google Tag Manager
 2. Navigate to **Templates** → **Tag Templates** → **New**
-3. Copy the content from `Netka CMP.tpl`
+3. Copy the content from `template.tpl`
 4. Paste into the template editor
 5. Save the template
 
@@ -55,8 +55,7 @@ Netka CMP (Consent Management Platform) is a Google Tag Manager custom template 
    - Add your **API Key** (obtain from Netka System)
 
 3. **Set Trigger**
-   - Recommended: **Consent Initialization - All Pages**
-   - Or: **All Pages** with highest priority
+   - Use **Consent Initialization - All Pages** so consent defaults run before other tags
 
 4. **Advanced Settings** (Optional)
    - Tag firing priority: Set to highest (e.g., 999)
@@ -86,9 +85,28 @@ The template requires the following permissions:
 
 - `ad_storage` - Advertising cookies
 - `analytics_storage` - Analytics cookies
+- `ad_user_data` - Sending user data to Google for advertising
+- `ad_personalization` - Personalized advertising
 - `functionality_storage` - Functional cookies
 - `personalization_storage` - Personalization cookies
 - `security_storage` - Security cookies
+
+### Regional consent defaults
+
+Configure the **Regional consent defaults** table instead of applying denied defaults to every visitor regardless of location.
+
+For a deployment where the banner appears in Germany and France, add these rows:
+
+| Region | Granted consent types | Denied consent types |
+|---|---|---|
+| *(blank/global)* | `ad_storage,analytics_storage,ad_user_data,ad_personalization` | *(blank)* |
+| `DE,FR` | *(blank)* | `ad_storage,analytics_storage,ad_user_data,ad_personalization` |
+
+The blank row applies outside the listed banner regions. The more specific regional row takes precedence inside Germany and France. Replace the example regions with the same reviewed policy used by the Netka banner; do not copy it to production unchanged.
+
+If regional policy or geo lookup fails, do not treat the failure as an outside-region grant. Keep a denied fallback and surface the banner or fail closed.
+
+The template restores the saved `cconsent` cookie at page load and registers `addNksConsentListener` after the CMP script loads. Accept, reject, granular changes, and revocation are sent through GTM's `updateConsentState` API.
 
 ## 🎯 Usage Example
 

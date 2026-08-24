@@ -2,6 +2,9 @@
 
 {
   "type": "TAG",
+  "categories": [
+    "UTILITY"
+  ],
   "id": "cvt_temp_public_id",
   "version": 1,
   "securityGroups": [],
@@ -85,6 +88,42 @@ ___TEMPLATE_PARAMETERS___
         ]
       },
       {
+        "type": "SIMPLE_TABLE",
+        "name": "defaultSettings",
+        "displayName": "Regional consent defaults",
+        "help": "Add an empty Region row for the global fallback and ISO 3166-2 region rows for locations where the banner appears. Example: global row grants the four Google consent types; EEA/GB/CH rows deny them until the visitor chooses.",
+        "simpleTableColumns": [
+          {
+            "type": "TEXT",
+            "name": "region",
+            "displayName": "Region",
+            "defaultValue": "",
+            "valueHint": "DE, FR, GB or blank for global"
+          },
+          {
+            "type": "TEXT",
+            "name": "granted",
+            "displayName": "Granted consent types",
+            "defaultValue": "",
+            "valueHint": "Comma-separated"
+          },
+          {
+            "type": "TEXT",
+            "name": "denied",
+            "displayName": "Denied consent types",
+            "defaultValue": "",
+            "valueHint": "Comma-separated"
+          }
+        ],
+        "enablingConditions": [
+          {
+            "paramName": "enableConsentMode",
+            "paramValue": true,
+            "type": "EQUALS"
+          }
+        ]
+      },
+      {
         "type": "CHECKBOX",
         "name": "enableAutoBlock",
         "displayName": "Enable Auto-Block Script",
@@ -101,6 +140,11 @@ ___SANDBOXED_JS_FOR_WEB_TEMPLATE___
 const log = require('logToConsole');
 const injectScript = require('injectScript');
 const setDefaultConsentState = require('setDefaultConsentState');
+const updateConsentState = require('updateConsentState');
+const getCookieValues = require('getCookieValues');
+const callInWindow = require('callInWindow');
+const setInWindow = require('setInWindow');
+const JSON = require('JSON');
 const queryPermission = require('queryPermission');
 const gtagSet = require('gtagSet');
 
@@ -109,20 +153,92 @@ const LOGTAG = 'NETKA.CMP >';
 // Step 1: Set developer ID
 gtagSet('developer_id.dYmE5Zm', true);
 
-// Step 2: Set default consent state (all denied)
-if (data.enableConsentMode) {
-  var defaultState = {
-    'ad_storage': 'denied',
-    'ad_user_data': 'denied',
-    'ad_personalization': 'denied',
-    'analytics_storage': 'denied',
-    'functionality_storage': 'denied',
-    'personalization_storage': 'denied',
-    'security_storage': 'granted',
-    'wait_for_update': data.waitForUpdate ? data.waitForUpdate * 1 : 500
+const splitInput = function(input) {
+  if (!input) return [];
+  return input.split(',').map(function(entry) {
+    return entry.trim();
+  }).filter(function(entry) {
+    return entry.length > 0;
+  });
+};
+
+const parseDefaultSettings = function(settings) {
+  var command = {};
+  var regions = splitInput(settings.region);
+  splitInput(settings.granted).forEach(function(consentType) {
+    command[consentType] = 'granted';
+  });
+  splitInput(settings.denied).forEach(function(consentType) {
+    command[consentType] = 'denied';
+  });
+  if (regions.length) command.region = regions;
+  command.wait_for_update = data.waitForUpdate ? data.waitForUpdate * 1 : 500;
+  return command;
+};
+
+const toConsentState = function(consent) {
+  if (!consent) return null;
+  if (consent.ad_storage === 'granted' || consent.ad_storage === 'denied') {
+    return consent;
+  }
+  var categories = consent.categories || consent;
+  var targeting = categories.Targeting && categories.Targeting.wanted === true;
+  var social = categories.SocialMedia && categories.SocialMedia.wanted === true;
+  var performance = categories.Performance && categories.Performance.wanted === true;
+  var functional = categories.Functional && categories.Functional.wanted === true;
+  var necessary = !categories.Necessary || categories.Necessary.wanted !== false;
+  return {
+    ad_storage: targeting || social ? 'granted' : 'denied',
+    ad_user_data: targeting || social ? 'granted' : 'denied',
+    ad_personalization: targeting ? 'granted' : 'denied',
+    analytics_storage: performance ? 'granted' : 'denied',
+    functionality_storage: functional ? 'granted' : 'denied',
+    personalization_storage: targeting ? 'granted' : 'denied',
+    security_storage: necessary ? 'granted' : 'denied'
   };
-  setDefaultConsentState(defaultState);
-  log(LOGTAG, 'Default consent state set (all denied).');
+};
+
+const onUserConsent = function(consent) {
+  var state = toConsentState(consent);
+  if (state) updateConsentState(state);
+};
+
+// Step 2: Set regional defaults. The legacy fallback remains global denied.
+if (data.enableConsentMode) {
+  var rows = data.defaultSettings || [];
+  if (rows.length) {
+    rows.forEach(function(settings) {
+      setDefaultConsentState(parseDefaultSettings(settings));
+    });
+    log(LOGTAG, 'Regional consent defaults set.');
+  } else {
+    setDefaultConsentState({
+      'ad_storage': 'denied',
+      'ad_user_data': 'denied',
+      'ad_personalization': 'denied',
+      'analytics_storage': 'denied',
+      'functionality_storage': 'denied',
+      'personalization_storage': 'denied',
+      'security_storage': 'granted',
+      'wait_for_update': data.waitForUpdate ? data.waitForUpdate * 1 : 500
+    });
+    log(LOGTAG, 'Default consent state set (global denied fallback).');
+  }
+
+  var storedConsent = getCookieValues('cconsent');
+  if (storedConsent && storedConsent.length) {
+    try {
+      onUserConsent(JSON.parse(storedConsent[0]));
+    } catch (e) {
+      log(LOGTAG, 'Stored consent cookie could not be parsed.');
+    }
+  }
+
+  // Install the bridge before any async script is injected, so an immediate
+  // banner interaction cannot race listener registration.
+  if (queryPermission('access_globals', 'write', 'nksGtmConsentUpdate')) {
+    setInWindow('nksGtmConsentUpdate', onUserConsent, true);
+  }
 }
 
 // Step 3: Inject AutoBlock script (if enabled)
@@ -141,7 +257,16 @@ if (data.enableAutoBlock) {
 var apiURL = data.apiURL || 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js';
 var scriptURL = apiURL + '/?key=' + data.apiKey;
 if (queryPermission('inject_script', scriptURL)) {
-  injectScript(scriptURL, data.gtmOnSuccess, data.gtmOnFailure);
+  injectScript(scriptURL, function() {
+    if (data.enableConsentMode && queryPermission('access_globals', 'execute', 'addNksConsentListener')) {
+      try {
+        callInWindow('addNksConsentListener', onUserConsent);
+      } catch (e) {
+        log(LOGTAG, 'CMP listener registration will use the pre-installed bridge.');
+      }
+    }
+    data.gtmOnSuccess();
+  }, data.gtmOnFailure);
 } else {
   log(LOGTAG, 'Netka CMP Script does not have permission to be injected.');
   data.gtmOnFailure();
@@ -447,7 +572,94 @@ ___WEB_PERMISSIONS___
         "publicId": "access_globals",
         "versionId": "1"
       },
-      "param": []
+      "param": [
+        {
+          "key": "keys",
+          "value": {
+            "type": 2,
+            "listItem": [
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "key"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  },
+                  {
+                    "type": 1,
+                    "string": "execute"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "addNksConsentListener"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": false
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  }
+                ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "key"
+                  },
+                  {
+                    "type": 1,
+                    "string": "read"
+                  },
+                  {
+                    "type": 1,
+                    "string": "write"
+                  },
+                  {
+                    "type": 1,
+                    "string": "execute"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "nksGtmConsentUpdate"
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  },
+                  {
+                    "type": 8,
+                    "boolean": true
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
     },
     "isRequired": true
   },
@@ -525,7 +737,88 @@ Google may provide), as modified from time to time.
 
 ___TESTS___
 
-scenarios: []
+scenarios:
+- name: global denied fallback
+  code: |-
+    mock('injectScript', function(url, onSuccess) { onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      defaultSettings: []
+    });
+    assertApi('setDefaultConsentState').wasCalledWith({
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      security_storage: 'granted',
+      wait_for_update: 500
+    });
+    assertApi('gtmOnSuccess').wasCalled();
+- name: regional defaults preserve no-banner measurement
+  code: |-
+    mock('injectScript', function(url, onSuccess) { onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      defaultSettings: [
+        {
+          region: '',
+          granted: 'ad_storage,analytics_storage,ad_user_data,ad_personalization',
+          denied: ''
+        },
+        {
+          region: 'DE,FR',
+          granted: '',
+          denied: 'ad_storage,analytics_storage,ad_user_data,ad_personalization'
+        }
+      ]
+    });
+    assertApi('setDefaultConsentState').wasCalledWith({
+      ad_storage: 'granted',
+      analytics_storage: 'granted',
+      ad_user_data: 'granted',
+      ad_personalization: 'granted',
+      wait_for_update: 500
+    });
+    assertApi('setDefaultConsentState').wasCalledWith({
+      ad_storage: 'denied',
+      analytics_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      region: ['DE', 'FR'],
+      wait_for_update: 500
+    });
+- name: stored granular consent uses GTM update API
+  code: |-
+    mock('getCookieValues', function(name) {
+      if (name === 'cconsent') {
+        return ['{"categories":{"Necessary":{"wanted":true},"Performance":{"wanted":true},"Targeting":{"wanted":false}}}'];
+      }
+      return [];
+    });
+    mock('injectScript', function(url, onSuccess) { onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '500'
+    });
+    assertApi('updateConsentState').wasCalledWith({
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'granted',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      security_storage: 'granted'
+    });
 
 
 ___NOTES___
