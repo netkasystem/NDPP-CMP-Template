@@ -111,9 +111,11 @@ For a deployment where the banner appears in Germany and France, add these rows:
 
 The blank row applies outside the listed banner regions. The more specific regional row takes precedence inside Germany and France. Replace the example regions with the same reviewed policy used by the Netka banner; do not copy it to production unchanged.
 
-If regional policy or geo lookup fails, do not treat the failure as an outside-region grant. Keep a denied fallback and surface the banner or fail closed.
+The global row is an explicit policy decision. If regional rows are configured without a blank/global row, the template automatically adds a global denied fallback. Duplicate region assignments also make the configuration fall back to global denied. This prevents an omitted or ambiguous row from becoming an accidental grant. If measurement should continue where the banner does not appear, add and review the blank/global granted row explicitly.
 
-The template restores the saved `cconsent` cookie at page load and registers `addNksConsentListener` after the CMP script loads. Accept, reject, granular changes, and revocation are sent through GTM's `updateConsentState` API.
+`wait_for_update` is constrained to 500–10000 milliseconds; invalid or lower values use 500 milliseconds because the CMP loads asynchronously.
+
+The template restores the saved `cconsent` cookie at page load and installs `nksGtmConsentUpdate` before the CMP script is injected. Accept, reject, granular changes, and revocation are sent through GTM's `updateConsentState` API. The page-side compatibility listener `addNksConsentListener` remains available to non-template consumers.
 
 ## 🎯 Usage Example
 
@@ -170,6 +172,12 @@ This template is licensed under the terms specified in the LICENSE file.
 ## 🛠️ Development
 
 This template is maintained by Netka System. For contributions or issues:
+
+Run the local sandbox behavior suite with Node.js 18 or newer:
+
+```shell
+node --test test/template-runtime.test.js
+```
 
 1. Fork this repository
 2. Create a feature branch

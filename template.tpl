@@ -72,6 +72,7 @@ ___TEMPLATE_PARAMETERS___
         "type": "TEXT",
         "name": "waitForUpdate",
         "displayName": "wait_for_update timeout (ms)",
+        "help": "Values below 500 ms or above 10000 ms are normalized to 500 ms because the CMP loads asynchronously.",
         "simpleValueType": true,
         "defaultValue": "500",
         "valueValidators": [
@@ -146,6 +147,7 @@ const setInWindow = require('setInWindow');
 const JSON = require('JSON');
 const queryPermission = require('queryPermission');
 const gtagSet = require('gtagSet');
+const encodeUriComponent = require('encodeUriComponent');
 
 const LOGTAG = 'NETKA.CMP >';
 const CONSENT_TYPES = {
@@ -211,7 +213,9 @@ const baseDeniedDefault = function() {
 
 const waitForUpdate = function() {
   var wait = data.waitForUpdate * 1;
-  return wait >= 0 && wait <= 10000 ? wait : 500;
+  // The CMP is loaded asynchronously. Google recommends at least 500 ms when
+  // an asynchronous CMP must finish before the visitor can provide an update.
+  return wait >= 500 && wait <= 10000 ? wait : 500;
 };
 
 const parseDefaultSettings = function(settings) {
@@ -235,7 +239,16 @@ const parseDefaultSettings = function(settings) {
 const toConsentState = function(consent) {
   if (!consent) return null;
   if (consent.ad_storage === 'granted' || consent.ad_storage === 'denied') {
-    return consent;
+    // Accept only known Consent Mode keys from the live page bridge. Missing
+    // advertising/analytics keys remain denied instead of retaining an older
+    // grant, and arbitrary page-provided keys never reach updateConsentState.
+    var directState = baseDeniedDefault();
+    for (var consentType in CONSENT_TYPES) {
+      if (consent[consentType] === 'granted' || consent[consentType] === 'denied') {
+        directState[consentType] = consent[consentType];
+      }
+    }
+    return directState;
   }
   var categories = consent.categories || consent;
   var targeting = categories.Targeting && categories.Targeting.wanted === true;
@@ -264,6 +277,31 @@ const onUserConsent = function(consent) {
 if (data.enableConsentMode) {
   var rows = data.defaultSettings || [];
   var commands = rows.map(parseDefaultSettings).filter(function(command) { return command !== null; });
+  var seenRegions = {};
+  var invalidDefaults = false;
+  var hasGlobalDefault = false;
+  var hasRegionalDefault = false;
+  commands.forEach(function(command) {
+    var regions = command.region || ['__GLOBAL__'];
+    if (!command.region) hasGlobalDefault = true;
+    if (command.region) hasRegionalDefault = true;
+    regions.forEach(function(region) {
+      if (seenRegions[region]) invalidDefaults = true;
+      seenRegions[region] = true;
+    });
+  });
+  // Equal-specificity duplicate rows have ambiguous precedence. Fail the
+  // configuration closed rather than allowing order-dependent grants.
+  if (invalidDefaults) commands = [];
+  // A regional-only configuration otherwise leaves visitors outside those
+  // regions with no explicit default. Add a denied global fallback; customers
+  // who intentionally measure outside banner regions must add an explicit
+  // blank/global row with the reviewed grants.
+  if (commands.length && hasRegionalDefault && !hasGlobalDefault) {
+    var regionalFallback = baseDeniedDefault();
+    regionalFallback.wait_for_update = waitForUpdate();
+    commands.unshift(regionalFallback);
+  }
   if (commands.length) {
     commands.forEach(function(command) { setDefaultConsentState(command); });
     log(LOGTAG, 'Regional consent defaults set.');
@@ -293,15 +331,33 @@ if (data.enableConsentMode) {
 // Complete exactly once. If AutoBlock is requested it must load before the CMP
 // script; otherwise parallel callbacks can report both failure and success and
 // the banner can race its blocker.
+var completed = false;
+const completeSuccess = function() {
+  if (completed) return;
+  completed = true;
+  data.gtmOnSuccess();
+};
+const completeFailure = function() {
+  if (completed) return;
+  completed = true;
+  data.gtmOnFailure();
+};
+
 const injectCmpScript = function() {
   var apiURL = data.apiURL || 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js';
-  var scriptURL = apiURL + '/?key=' + data.apiKey;
-  if (!queryPermission('inject_script', scriptURL)) {
-    log(LOGTAG, 'Netka CMP Script does not have permission to be injected.');
-    data.gtmOnFailure();
+  var apiKey = data.apiKey || '';
+  if (!apiKey) {
+    log(LOGTAG, 'Netka CMP API key is required.');
+    completeFailure();
     return;
   }
-  injectScript(scriptURL, data.gtmOnSuccess, data.gtmOnFailure);
+  var scriptURL = apiURL + '/?key=' + encodeUriComponent(apiKey);
+  if (!queryPermission('inject_script', scriptURL)) {
+    log(LOGTAG, 'Netka CMP Script does not have permission to be injected.');
+    completeFailure();
+    return;
+  }
+  injectScript(scriptURL, completeSuccess, completeFailure);
 };
 
 // Step 3/4: optionally inject AutoBlock, then inject the CMP script.
@@ -318,11 +374,11 @@ if (data.enableAutoBlock) {
       injectCmpScript();
     }, function() {
       log(LOGTAG, 'AutoBlock injection failed.');
-      data.gtmOnFailure();
+      completeFailure();
     });
   } else {
     log(LOGTAG, 'No permission for AutoBlock.');
-    data.gtmOnFailure();
+    completeFailure();
   }
 } else {
   injectCmpScript();
@@ -903,12 +959,45 @@ scenarios:
       ad_storage: 'denied',
       ad_user_data: 'denied',
       ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      security_storage: 'granted',
+      wait_for_update: 750
+    });
+    assertApi('setDefaultConsentState').wasCalledWith({
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
       analytics_storage: 'granted',
       functionality_storage: 'denied',
       personalization_storage: 'denied',
       security_storage: 'granted',
       region: ['US-CA'],
       wait_for_update: 750
+    });
+- name: duplicate regional defaults fail closed
+  code: |-
+    mock('injectScript', function(url, onSuccess) { onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      defaultSettings: [
+        { region: 'DE,FR', granted: 'analytics_storage', denied: '' },
+        { region: 'FR', granted: 'ad_storage', denied: '' }
+      ]
+    });
+    assertApi('setDefaultConsentState').wasCalledWith({
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      analytics_storage: 'denied',
+      functionality_storage: 'denied',
+      personalization_storage: 'denied',
+      security_storage: 'granted',
+      wait_for_update: 500
     });
 - name: stored granular consent uses GTM update API
   code: |-
@@ -968,6 +1057,32 @@ scenarios:
       waitForUpdate: '500',
       enableAutoBlock: false
     });
+    assertApi('gtmOnFailure').wasCalled();
+- name: contradictory injection callbacks complete once
+  code: |-
+    mock('injectScript', function(url, onSuccess, onFailure) {
+      onFailure();
+      onSuccess();
+    });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'test',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      enableAutoBlock: false
+    });
+    assertApi('gtmOnFailure').wasCalled();
+    assertApi('gtmOnSuccess').wasNotCalled();
+- name: missing API key fails without injection
+  code: |-
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: '',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      enableAutoBlock: false
+    });
+    assertApi('injectScript').wasNotCalled();
     assertApi('gtmOnFailure').wasCalled();
 - name: AutoBlock does not override GTM managed defaults
   code: |-
