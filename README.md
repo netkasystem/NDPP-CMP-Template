@@ -41,15 +41,20 @@ Netka CMP is a Google Tag Manager custom template that integrates cookie consent
 
 | Parameter | Description | Example |
 |-----------|-------------|---------|
-| **Netka CMP URL** | API endpoint for cookie settings | `https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js` |
+| **Netka CMP URL** | Tenant-specific HTTPS API endpoint for cookie settings | `https://customer.pdpanetka.com/api/cookie/cookiesetting.js` |
 | **API Key** | Your unique Netka CMP API key | Provided by Netka System |
 
-The default `ndppdev.netkasystem.co.th` URL is the controlled endpoint used for
-Google CMP review and certification testing. Commercial SaaS customers use a
-tenant-specific HTTPS host under `*.pdpanetka.com` (for example,
-`https://customer.pdpanetka.com/...`); the literal wildcard is a permission
-pattern, not a URL to enter in the tag. Both host families are allowlisted by
-the template's Inject Script permission.
+Choose the endpoint by environment:
+
+| Environment | Endpoint rule |
+|---|---|
+| Google CMP review/certification | Use the controlled `https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js` endpoint and audit key supplied by Netka. |
+| Commercial SaaS | Use the customer's concrete HTTPS tenant host, such as `https://customer.pdpanetka.com/api/cookie/cookiesetting.js`. |
+
+`ndppdev.netkasystem.co.th` is not a production SaaS tenant. The literal
+`*.pdpanetka.com` value is an Inject Script permission pattern, not a URL to
+enter in the tag. Never copy an audit key into a customer tenant configuration
+or commit any API key to source control.
 
 ### Setup Instructions
 
@@ -58,24 +63,30 @@ the template's Inject Script permission.
    - Choose **Netka CMP** as the tag type
 
 2. **Configure Settings**
-   - Enter your **Netka CMP URL** (default provided or custom endpoint)
+   - Enter the concrete **Netka CMP URL** for the selected environment
    - Add your **API Key** (obtain from Netka System)
 
 3. **Set Trigger**
-   - Use **Consent Initialization - All Pages** so consent defaults run before other tags
+   - Use **Consent Initialization - All Pages** so consent defaults run before other tags.
+   - Do not use **Initialization - All Pages**, **All Pages**, tag priority, or firing order as a substitute for the Consent Initialization trigger.
 
-4. **Advanced Settings** (Optional)
-   - Tag firing priority: Set to highest (e.g., 999)
-   - Firing order: Before other tags that require consent
+4. **Verify Before Publishing**
+   - In GTM Preview, confirm the Netka CMP tag fires during **Consent Initialization**.
+   - Confirm Advanced-mode defaults exist before `gtm.js` or another Google tracking event.
+   - Confirm Basic-mode installations use the direct pre-GTM bootstrap described in the linked guide; a CMP tag inside GTM cannot block the container that is already running it.
 
 ## 📝 Template Parameters
 
 ```javascript
 {
-  "apiURL": "https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js",
-  "apiKey": "YOUR_API_KEY_HERE"
+  "apiURL": "https://customer.pdpanetka.com/api/cookie/cookiesetting.js",
+  "apiKey": "YOUR_TENANT_API_KEY"
 }
 ```
+
+For the controlled Google review environment only, replace `apiURL` with
+`https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js` and use the
+separately issued audit key.
 
 ## 🔐 Permissions
 
@@ -122,7 +133,7 @@ The template restores the saved `cconsent` cookie at page load and installs `nks
 After setup, the tag will:
 
 1. Load the Netka CMP script on page load
-2. Display the consent banner to users
+2. Display or suppress the banner according to the reviewed regional policy
 3. Capture user consent choices
 4. Update Google Consent Mode accordingly
 5. Store consent preferences in cookies
@@ -166,6 +177,9 @@ This template is licensed under the terms specified in the LICENSE file.
 ## ⚠️ Important Notes
 
 - Ensure your API key is valid and active
+- Keep Google review credentials separate from customer SaaS credentials
+- Use a concrete SaaS tenant hostname; never enter `*.pdpanetka.com`
+- Fire the GTM template on **Consent Initialization - All Pages** only
 - Test in GTM Preview mode before publishing
 - Comply with local data privacy regulations (GDPR/PDPA)
 - Keep the template updated for security patches
