@@ -48,13 +48,21 @@ Choose the endpoint by environment:
 
 | Environment | Endpoint rule |
 |---|---|
-| Google CMP review/certification | Use the controlled `https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js` endpoint and audit key supplied by Netka. |
+| Google CMP review/certification | Use the externally accessible `https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js` audit endpoint and audit key supplied by Netka. |
 | Commercial SaaS | Use the customer's concrete HTTPS tenant host, such as `https://customer.pdpanetka.com/api/cookie/cookiesetting.js`. |
 
-`ndppdev.netkasystem.co.th` is not a production SaaS tenant. The literal
+`ndppdev.netkasystem.co.th` is Netka's dedicated environment for Google CMP
+review and certification. It uses the same CMP codebase, release artifacts,
+consent logic, GTM integration, and public Cookie Banner CDN assets as
+tenant-specific commercial deployments under `pdpanetka.com`. The review
+environment differs only in hostname and infrastructure provisioning: it uses
+a shared Netka review host instead of a dedicated customer tenant environment.
+
+Production customers use concrete tenant-specific HTTPS hosts. The literal
 `*.pdpanetka.com` value is an Inject Script permission pattern, not a URL to
 enter in the tag. Never copy an audit key into a customer tenant configuration
-or commit any API key to source control.
+or commit any API key to source control. The audit environment does not use an
+audit-only consent bypass or different Consent Mode behavior.
 
 ### Setup Instructions
 
@@ -84,9 +92,10 @@ or commit any API key to source control.
 }
 ```
 
-For the controlled Google review environment only, replace `apiURL` with
+For Google review and certification, replace `apiURL` with
 `https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js` and use the
-separately issued audit key.
+separately issued audit key. This changes the review host and provisioning,
+not the CMP release or consent behavior under test.
 
 ## 🔐 Permissions
 
