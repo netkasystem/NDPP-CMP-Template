@@ -22,6 +22,7 @@ window.NKS_TEST_CONFIG = {
   // Key of the banner record created for this page.
   cmpKey: "<AUDIT TEST TENANT KEY>",
 
-  // GA4 measurement ID created for this page.
-  ga4: "G-XXXXXXXXXX"
+  // GA4 measurement ID created for this page (property kept separate from the
+  // corporate G-9EXHFKSLTQ so reviewer traffic never reaches real analytics).
+  ga4: "G-4MCPSVLMM3"
 };

@@ -17,6 +17,14 @@ The corporate site loads Mixpanel with autocapture and session recording **above
 5. **Optional custom domain.** Use a subdomain such as `cmp-demo.netkasystem.com` — never the apex, which serves the marketing site. Add `cmp-demo CNAME netkasystem.github.io.` to the **public** zone *and* to the internal AD zone: the name is split-horizon, so a record in only one place leaves either the reviewers or the office unable to open it. Enter the domain in the Pages settings, let GitHub write the `CNAME` file, then enable Enforce HTTPS.
 6. **Copy the published URL into the application** and into the runtime evidence checklist in the CookieBanner repository.
 
+## The GTM container is a separate route, not part of this page
+
+The application asks first for a **gtag-based** test site, and offers a GTM preview link only as an alternative. This page is therefore the gtag route: `G-4MCPSVLMM3`, no container.
+
+`GTM-5N3PMSTH` (NDPP-CMP) belongs to the other evidence track — importing the Netka CMP template from the Gallery, running the Template Editor tests, and producing the shareable Preview link that the Template and update-command questions need. Keep the two apart: putting a container on this page would make it unclear which integration the reviewer is looking at, and the container would need its own CMP tag configured before it behaved correctly.
+
+If a GTM-based demonstration is wanted as well, add a second page rather than a second tag on this one.
+
 ## About the key in `config.js`
 
 The banner key is public by construction: in the dynamic integration it appears in the page source of every site that uses it, this one included. That is acceptable **only** because it belongs to a banner record created for this audit and bound to this host. Never paste a customer's key here, and retire this record once certification is settled.
