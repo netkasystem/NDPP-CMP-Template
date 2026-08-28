@@ -17,12 +17,15 @@
  */
 window.NKS_TEST_CONFIG = {
   // The tenant host that serves the banner configuration.
-  cmpEndpoint: "https://<AUDIT-TENANT>.pdpanetka.com/api/cookie/cookiesetting",
+  cmpEndpoint: "https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting",
 
   // Key of the banner record created for this page.
   cmpKey: "<AUDIT TEST TENANT KEY>",
 
   // GA4 measurement ID created for this page (property kept separate from the
   // corporate G-9EXHFKSLTQ so reviewer traffic never reaches real analytics).
-  ga4: "G-4MCPSVLMM3"
+  ga4: "G-4MCPSVLMM3",
+
+  // Container for the GTM route page; the gtag page ignores it.
+  gtm: "GTM-5N3PMSTH"
 };

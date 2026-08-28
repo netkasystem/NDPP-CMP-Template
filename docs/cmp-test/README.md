@@ -17,13 +17,18 @@ The corporate site loads Mixpanel with autocapture and session recording **above
 5. **Optional custom domain.** Use a subdomain such as `cmp-demo.netkasystem.com` — never the apex, which serves the marketing site. Add `cmp-demo CNAME netkasystem.github.io.` to the **public** zone *and* to the internal AD zone: the name is split-horizon, so a record in only one place leaves either the reviewers or the office unable to open it. Enter the domain in the Pages settings, let GitHub write the `CNAME` file, then enable Enforce HTTPS.
 6. **Copy the published URL into the application** and into the runtime evidence checklist in the CookieBanner repository.
 
-## The GTM container is a separate route, not part of this page
+## Two pages, one per integration route
 
-The application asks first for a **gtag-based** test site, and offers a GTM preview link only as an alternative. This page is therefore the gtag route: `G-4MCPSVLMM3`, no container.
+The Test Site section asks for the banner "with consent mode and Google tags deployed (for GTM and gtag)", and Netka recommends GTM to its customers. Both routes therefore get a page, kept apart so a reviewer always knows which integration is on screen:
 
-`GTM-5N3PMSTH` (NDPP-CMP) belongs to the other evidence track — importing the Netka CMP template from the Gallery, running the Template Editor tests, and producing the shareable Preview link that the Template and update-command questions need. Keep the two apart: putting a container on this page would make it unclear which integration the reviewer is looking at, and the container would need its own CMP tag configured before it behaved correctly.
+| Page | Route | Ids |
+|---|---|---|
+| `cmp-test/` | gtag, the implementation the clarification asks for first | `G-4MCPSVLMM3` |
+| `cmp-test-gtm/` | Google Tag Manager, the integration Netka recommends | `GTM-5N3PMSTH` (NDPP-CMP) |
 
-If a GTM-based demonstration is wanted as well, add a second page rather than a second tag on this one.
+They share `config.js` and the consent readout. Never put both a container and a gtag snippet on one page: each would emit its own consent default and the reviewer could not tell which one the CMP produced.
+
+The container also carries the other evidence the application needs — the Gallery import, the Template Editor tests and the shareable Preview link — so it must have the Netka CMP tag configured on the **Consent Initialization – All Pages** trigger before this page behaves correctly.
 
 ## About the key in `config.js`
 
