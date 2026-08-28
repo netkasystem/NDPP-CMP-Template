@@ -32,7 +32,12 @@ The container also carries the other evidence the application needs — the Gall
 
 ## About the key in `config.js`
 
-The banner key is public by construction: in the dynamic integration it appears in the page source of every site that uses it, this one included. That is acceptable **only** because it belongs to a banner record created for this audit and bound to this host. Never paste a customer's key here, and retire this record once certification is settled.
+The key belongs to a banner record on **`ndppdev.netkasystem.co.th`**, the review host, and the team has confirmed it is public. It has to be committed: a static page on GitHub Pages has nowhere else to read it from, and in the dynamic integration the key appears in the page source of every site that uses it anyway.
+
+Two things follow, and neither is optional:
+
+- **Never put a customer tenant's key here.** This repository is public and its history is permanent, so a key committed once cannot be taken back by editing the file.
+- **Retire this banner record once certification is settled**, and keep its `DiscoveryDomain` pinned to whatever host actually serves these pages. If the site later moves to a custom domain, update `DiscoveryDomain` at the same time or `POST /api/cookie/consent` will start rejecting submissions: it requires the payload host and the browser `Origin` to match the configured domain exactly.
 
 ## Load order — do not rearrange
 
