@@ -1,0 +1,44 @@
+# CMP Partner Program test site
+
+`index.html` is the public page Google's reviewers open. It runs the Netka consent banner over a **gtag** implementation with Consent Mode v2 and carries nothing else.
+
+It answers the test-site question in the application: a gtag-based implementation, with the banner visible from every location, on a host that stays put.
+
+## Why it lives here rather than on the marketing site
+
+The corporate site loads Mixpanel with autocapture and session recording **above** the CMP, where AutoBlock cannot block it, and marketing can change that page at any time during the review window. This page is owned by engineering, has no third-party tags, and its history is in Git.
+
+## Setup
+
+1. **Create a banner record for this page only.** In the NDPP console, add a banner whose `DiscoveryDomain` is exactly this page's host — the consent endpoint rejects a submission whose host or `Origin` does not match. Enable the purposes the review needs: Necessary, Performance, Functional and Targeting, so *Accept all* demonstrates every Google consent signal. Keep Coverage on Worldwide.
+2. **Create a GA4 property for this page only.** Never reuse the corporate measurement ID: reviewer traffic would land in Netka's real analytics.
+3. **Fill in `config.js`** with the tenant endpoint, the banner key and the GA4 ID.
+4. **Enable GitHub Pages** for this repository, serving from `main`. The page is then at `https://<owner>.github.io/NDPP-CMP-Template/cmp-test/`. Add a `CNAME` file if you want it under a Netka subdomain instead.
+5. **Copy the published URL into the application** and into the runtime evidence checklist in the CookieBanner repository.
+
+## About the key in `config.js`
+
+The banner key is public by construction: in the dynamic integration it appears in the page source of every site that uses it, this one included. That is acceptable **only** because it belongs to a banner record created for this audit and bound to this host. Never paste a customer's key here, and retire this record once certification is settled.
+
+## Load order — do not rearrange
+
+```
+window.NKS_CONSENT_MODE_CONFIG   →  read synchronously by AutoBlock
+nksAutoBlock.min.js              →  issues the Consent Mode default
+banner configuration fetch       →  brings in the banner and preference centre
+gtag.js                          →  must follow the default command
+```
+
+Anything added above AutoBlock is loaded by the parser before the CMP exists and cannot be blocked. That is what disqualified the marketing site, and it would disqualify this page just as fast.
+
+The fetch drops the AutoBlock tag and the config script that the API response repeats, so AutoBlock runs once. Two loads would emit a second, late consent default — the pattern our own scanner flags.
+
+## Checks before submitting the URL
+
+- [ ] The page opens from outside the Netka network, with no VPN and no login.
+- [ ] The banner appears; testers in at least three widely separated countries confirm it.
+- [ ] The Network panel shows exactly **one** `nksAutoBlock.min.js` request.
+- [ ] The readout on the page shows one `consent default` with all four required types denied, before the Google tag.
+- [ ] Accept produces one `update` granting the accepted purposes; Reject keeps them denied; the preference centre writes a per-purpose update.
+- [ ] Withdrawing consent returns the signals to denied.
+- [ ] Tag Assistant shows developer ID `dYmE5Zm`.

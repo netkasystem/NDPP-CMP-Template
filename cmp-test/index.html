@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netka CMP — Consent Mode test site</title>
+<meta name="robots" content="noindex">
+<meta name="description" content="Public test page for the Google CMP Partner Program review: Netka consent banner with a gtag implementation and Consent Mode v2.">
+
+<!--
+  Google CMP Partner Program — test site.
+
+  Load order is the point of this page and must not be rearranged:
+
+    1. window.NKS_CONSENT_MODE_CONFIG   — read synchronously by AutoBlock
+    2. nksAutoBlock.min.js              — sets the Consent Mode default
+    3. the banner configuration fetch   — brings in the banner and preference UI
+    4. gtag.js                          — must come after the default command
+
+  Nothing else belongs on this page. No analytics, session recording, chat
+  widget or marketing tag: anything that loads before step 2 cannot be blocked
+  and would misrepresent the product.
+-->
+
+<script>
+  // Consent Mode policy. The Netka banner is shown to every visitor, so the
+  // region list is empty and consent is never granted for an absent banner.
+  // Region-scoped defaults are a customer-side GTM tag setting, not a page one.
+  window.NKS_CONSENT_MODE_CONFIG = {
+    "mode": "advanced",
+    "bannerRegions": [],
+    "grantOutsideBannerRegions": false,
+    "waitForUpdate": 2000
+  };
+</script>
+<script src="https://cookiebanner.pdpanetka.com/nksAutoBlock.min.js"></script>
+<script src="config.js"></script>
+<script>
+  (function () {
+    var cfg = window.NKS_TEST_CONFIG || {};
+    if (!cfg.cmpKey || cfg.cmpKey.charAt(0) === "<") {
+      window.__nksTestConfigMissing = true;
+      return;
+    }
+    fetch(cfg.cmpEndpoint + "?key=" + encodeURIComponent(cfg.cmpKey))
+      .then(function (res) { return res.text(); })
+      .then(function (html) {
+        var fragment = document.createRange().createContextualFragment(html);
+        // AutoBlock is already loaded above, early enough to block trackers.
+        // The API response carries its own copy for integrations that have no
+        // page snippet; running it twice would emit a second, late consent
+        // default, so drop both copies here.
+        fragment.querySelectorAll('script[src*="nksAutoBlock"]').forEach(function (el) { el.remove(); });
+        fragment.querySelectorAll("script:not([src])").forEach(function (el) {
+          if (el.textContent.indexOf("NKS_CONSENT_MODE_CONFIG") !== -1) el.remove();
+        });
+        document.body.appendChild(fragment);
+      })
+      .catch(function (err) {
+        window.__nksTestFetchError = String(err && err.message);
+        console.warn("banner configuration failed to load", err);
+      });
+  })();
+</script>
+
+<script>
+  (function () {
+    var id = (window.NKS_TEST_CONFIG || {}).ga4;
+    if (!id || id.indexOf("XXXX") !== -1) return;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(id);
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+    gtag("js", new Date());
+    gtag("config", id);
+  })();
+</script>
+
+<style>
+  :root {
+    --ground:#f5f7f9; --surface:#fff; --sunk:#eef1f5; --line:#d7dde5;
+    --ink:#171c24; --ink-soft:#4d5765; --ink-faint:#737f8f;
+    --accent:#23457f; --ok:#1a6b4a; --ok-soft:#e0f0e8; --warn:#97590a; --warn-soft:#fbeedb;
+    --deny:#a52216; --deny-soft:#fbe6e3;
+    --sans:"Segoe UI",system-ui,-apple-system,sans-serif;
+    --mono:Consolas,"Cascadia Mono",ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground:#101319; --surface:#171b22; --sunk:#1d222b; --line:#2c333f;
+      --ink:#e4e8ee; --ink-soft:#a8b2c0; --ink-faint:#7b8593;
+      --accent:#8fb0e8; --ok:#6cc39b; --ok-soft:#142a21; --warn:#e0a75c; --warn-soft:#332613;
+      --deny:#ee8377; --deny-soft:#331916;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink); font-family:var(--sans); line-height:1.6; }
+  .wrap { max-width:820px; margin:0 auto; padding:3rem 1.25rem 6rem; display:flex; flex-direction:column; gap:1.75rem; }
+  .eyebrow { font-family:var(--mono); font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+  h1 { font-size:1.9rem; margin:.3rem 0 0; line-height:1.2; }
+  h2 { font-size:1.2rem; margin:0 0 .5rem; }
+  p { margin:0 0 .7rem; color:var(--ink-soft); }
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:1.1rem 1.25rem; }
+  ul { margin:.2rem 0 0; padding-left:1.15rem; color:var(--ink-soft); }
+  li { margin-bottom:.3rem; }
+  code { font-family:var(--mono); font-size:.88em; background:var(--sunk); border:1px solid var(--line); border-radius:2px; padding:.05em .35em; }
+  .actions { display:flex; flex-wrap:wrap; gap:.5rem; }
+  button { font:inherit; font-size:.9rem; font-weight:600; padding:.5rem .9rem; border-radius:3px; cursor:pointer;
+           border:1px solid var(--accent); background:transparent; color:var(--accent); }
+  button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  table { width:100%; border-collapse:collapse; font-size:.85rem; }
+  th, td { text-align:left; padding:.4rem .5rem; border-bottom:1px solid var(--line); vertical-align:top; font-family:var(--mono); }
+  th { color:var(--ink-faint); font-weight:600; text-transform:uppercase; letter-spacing:.05em; font-size:.72rem; }
+  tr:last-child td { border-bottom:0; }
+  .granted { color:var(--ok); }
+  .denied { color:var(--deny); }
+  .pill { display:inline-block; font-family:var(--mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.05em;
+          padding:.1rem .4rem; border-radius:2px; border:1px solid; }
+  .pill-ok { color:var(--ok); background:var(--ok-soft); border-color:var(--ok); }
+  .pill-warn { color:var(--warn); background:var(--warn-soft); border-color:var(--warn); }
+  .muted { color:var(--ink-faint); font-size:.85rem; }
+  footer { color:var(--ink-faint); font-size:.85rem; border-top:1px solid var(--line); padding-top:1rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Netka System Company Limited &middot; Developer ID dYmE5Zm</div>
+    <h1>Consent Mode test site</h1>
+    <p>This page exists for the Google CMP Partner Program review. It runs the Netka consent banner over a
+      <strong>gtag</strong> implementation with Consent Mode v2, and carries nothing else — no analytics beyond the test
+      property, no session recording, no marketing tags.</p>
+  </header>
+
+  <section class="card">
+    <h2>What to expect</h2>
+    <ul>
+      <li>The banner appears for <strong>every visitor in every region</strong>. Netka offers no setting that hides it by country, so there is no location from which it is absent.</li>
+      <li>Before you choose, the Consent Mode default sets <code>ad_storage</code>, <code>ad_user_data</code>, <code>ad_personalization</code> and <code>analytics_storage</code> to <em>denied</em>, and that command is issued before the Google tag loads.</li>
+      <li><strong>Accept</strong> grants the purposes described in the banner, <strong>Reject</strong> keeps every optional purpose denied, and the preference centre allows a per-purpose choice.</li>
+      <li>Consent can be withdrawn at any time through the persistent control the banner leaves on the page.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Consent commands observed on this page</h2>
+    <p class="muted">Read live from <code>dataLayer</code> by this page, for convenience during the review. It reports what the CMP sent; it does not alter it.</p>
+    <div id="readout"></div>
+    <div class="actions" style="margin-top:.9rem">
+      <button type="button" id="refresh">Refresh</button>
+      <button type="button" id="reopen">Open cookie preferences</button>
+      <button type="button" id="reset">Clear consent and reload</button>
+    </div>
+  </section>
+
+  <footer>
+    Test site for the CMP Partner Program review. Questions about this page:
+    <a href="mailto:cmp-partner-program@google.com">the application contact on file</a>.
+    The banner, the AutoBlock script and the preference centre are served from
+    <code>cookiebanner.pdpanetka.com</code>; the banner configuration comes from the Netka console.
+  </footer>
+
+</div>
+
+<script>
+(function () {
+  var TYPES = ["ad_storage", "ad_user_data", "ad_personalization", "analytics_storage",
+               "functionality_storage", "personalization_storage", "security_storage"];
+
+  function consentCommands() {
+    var dl = window.dataLayer || [];
+    var out = [];
+    for (var i = 0; i < dl.length; i++) {
+      var a = dl[i];
+      if (a && a[0] === "consent" && (a[1] === "default" || a[1] === "update")) {
+        out.push({ index: i, kind: a[1], payload: a[2] || {} });
+      }
+    }
+    return out;
+  }
+
+  function firstGoogleTagIndex() {
+    var dl = window.dataLayer || [];
+    for (var i = 0; i < dl.length; i++) {
+      var a = dl[i];
+      if (a && (a[0] === "config" || a[0] === "js")) return i;
+    }
+    return -1;
+  }
+
+  function esc(v) {
+    return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function render() {
+    var el = document.getElementById("readout");
+
+    if (window.__nksTestConfigMissing) {
+      el.innerHTML = '<p><span class="pill pill-warn">Not configured</span> ' +
+        'This page has no banner key yet. Fill in <code>cmp-test/config.js</code> before publishing.</p>';
+      return;
+    }
+
+    var cmds = consentCommands();
+    if (!cmds.length) {
+      el.innerHTML = '<p><span class="pill pill-warn">Waiting</span> No consent command has been observed yet.' +
+        (window.__nksTestFetchError ? ' The banner configuration failed to load: <code>' + esc(window.__nksTestFetchError) + '</code>' : '') +
+        '</p>';
+      return;
+    }
+
+    var tagAt = firstGoogleTagIndex();
+    var defaultAt = cmds[0].index;
+    var ordered = tagAt === -1 || defaultAt < tagAt;
+
+    var html = '<p>' +
+      '<span class="pill ' + (ordered ? "pill-ok" : "pill-warn") + '">' +
+      (ordered ? "Default precedes the Google tag" : "Google tag ran first") + '</span></p>';
+
+    html += '<table><thead><tr><th>#</th><th>command</th>';
+    TYPES.forEach(function (t) { html += "<th>" + t.replace("_storage", "") + "</th>"; });
+    html += "<th>region</th><th>wait</th></tr></thead><tbody>";
+
+    cmds.forEach(function (c) {
+      html += "<tr><td>" + c.index + "</td><td>" + esc(c.kind) + "</td>";
+      TYPES.forEach(function (t) {
+        var v = c.payload[t];
+        html += "<td class='" + (v === "granted" ? "granted" : v === "denied" ? "denied" : "") + "'>" +
+          (v === undefined ? "&middot;" : esc(v === "granted" ? "grant" : "deny")) + "</td>";
+      });
+      var region = c.payload.region ? [].concat(c.payload.region).join(" ") : "&middot;";
+      html += "<td>" + region + "</td><td>" + (c.payload.wait_for_update || "&middot;") + "</td></tr>";
+    });
+
+    html += "</tbody></table>";
+    el.innerHTML = html;
+  }
+
+  document.getElementById("refresh").addEventListener("click", render);
+
+  document.getElementById("reopen").addEventListener("click", function () {
+    var revoke = document.querySelector(".cc-revoke");
+    if (revoke) { revoke.click(); return; }
+    if (window.CookieConsent && typeof window.CookieConsent.showSettings === "function") {
+      window.CookieConsent.showSettings();
+      return;
+    }
+    alert("The preference control has not loaded yet. Wait a moment and try again.");
+  });
+
+  document.getElementById("reset").addEventListener("click", function () {
+    ["cookieconsent_status", "cconsent"].forEach(function (name) {
+      var host = location.hostname;
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=" + host;
+      document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=." + host;
+    });
+    location.reload();
+  });
+
+  render();
+  // The banner arrives after a network round trip, and consent updates follow a
+  // click, so poll briefly rather than asking the reviewer to press Refresh.
+  var ticks = 0;
+  var timer = setInterval(function () {
+    render();
+    if (++ticks > 40) clearInterval(timer);
+  }, 1000);
+})();
+</script>
+</body>
+</html>
