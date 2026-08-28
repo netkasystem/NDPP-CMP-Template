@@ -13,8 +13,9 @@ The corporate site loads Mixpanel with autocapture and session recording **above
 1. **Create a banner record for this page only.** In the NDPP console, add a banner whose `DiscoveryDomain` is exactly this page's host — the consent endpoint rejects a submission whose host or `Origin` does not match. Enable the purposes the review needs: Necessary, Performance, Functional and Targeting, so *Accept all* demonstrates every Google consent signal. Keep Coverage on Worldwide.
 2. **Create a GA4 property for this page only.** Never reuse the corporate measurement ID: reviewer traffic would land in Netka's real analytics.
 3. **Fill in `config.js`** with the tenant endpoint, the banner key and the GA4 ID.
-4. **Enable GitHub Pages** for this repository, serving from `main`. The page is then at `https://<owner>.github.io/NDPP-CMP-Template/cmp-test/`. Add a `CNAME` file if you want it under a Netka subdomain instead.
-5. **Copy the published URL into the application** and into the runtime evidence checklist in the CookieBanner repository.
+4. **GitHub Pages** publishes this repository from the `/docs` folder on `main`, which is why the test site lives here rather than at the repository root. The page is at `https://netkasystem.github.io/NDPP-CMP-Template/cmp-test/`.
+5. **Optional custom domain.** Use a subdomain such as `cmp-demo.netkasystem.com` — never the apex, which serves the marketing site. Add `cmp-demo CNAME netkasystem.github.io.` to the **public** zone *and* to the internal AD zone: the name is split-horizon, so a record in only one place leaves either the reviewers or the office unable to open it. Enter the domain in the Pages settings, let GitHub write the `CNAME` file, then enable Enforce HTTPS.
+6. **Copy the published URL into the application** and into the runtime evidence checklist in the CookieBanner repository.
 
 ## About the key in `config.js`
 

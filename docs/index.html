@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netka CMP — Consent Mode resources</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --ground:#f5f7f9; --surface:#fff; --line:#d7dde5;
+    --ink:#171c24; --ink-soft:#4d5765; --ink-faint:#737f8f; --accent:#23457f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --ground:#101319; --surface:#171b22; --line:#2c333f;
+            --ink:#e4e8ee; --ink-soft:#a8b2c0; --ink-faint:#7b8593; --accent:#8fb0e8; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink); line-height:1.6;
+         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; }
+  .wrap { max-width:640px; margin:0 auto; padding:4rem 1.25rem; display:flex; flex-direction:column; gap:1.5rem; }
+  .eyebrow { font-family:Consolas,ui-monospace,monospace; font-size:.8rem; letter-spacing:.08em;
+             text-transform:uppercase; color:var(--ink-faint); }
+  h1 { font-size:1.8rem; margin:.3rem 0 0; }
+  p { margin:0; color:var(--ink-soft); }
+  a.card { display:block; background:var(--surface); border:1px solid var(--line); border-radius:4px;
+           padding:1rem 1.15rem; text-decoration:none; color:inherit; }
+  a.card:hover, a.card:focus-visible { border-color:var(--accent); }
+  a.card:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  a.card strong { display:block; color:var(--accent); margin-bottom:.15rem; }
+  a.card span { color:var(--ink-soft); font-size:.9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Netka System Company Limited &middot; Developer ID dYmE5Zm</div>
+    <h1>Consent Mode resources</h1>
+    <p>Public material for the Google CMP Partner Program review.</p>
+  </header>
+
+  <a class="card" href="./cmp-test/">
+    <strong>Consent Mode test site</strong>
+    <span>The Netka consent banner over a gtag implementation, with the consent commands shown on the page.</span>
+  </a>
+
+  <a class="card" href="./google-consent-mode-v2-and-gtg.md">
+    <strong>Consent Mode v2 and Google tag gateway guide</strong>
+    <span>Setup for Basic and Advanced configurations, regional defaults, and GTG with late consent.</span>
+  </a>
+</div>
+</body>
+</html>
