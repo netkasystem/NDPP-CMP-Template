@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Netka CMP — review evidence</title>
+<meta name="robots" content="noindex">
+<style>
+  :root {
+    --ground:#f5f7f9; --surface:#fff; --sunk:#eef1f5; --line:#d7dde5;
+    --ink:#171c24; --ink-soft:#4d5765; --ink-faint:#737f8f; --accent:#23457f;
+    --mono:Consolas,"Cascadia Mono",ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --ground:#101319; --surface:#171b22; --sunk:#1d222b; --line:#2c333f;
+            --ink:#e4e8ee; --ink-soft:#a8b2c0; --ink-faint:#7b8593; --accent:#8fb0e8; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--ground); color:var(--ink); line-height:1.6;
+         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; }
+  .wrap { max-width:900px; margin:0 auto; padding:3rem 1.25rem 5rem; display:flex; flex-direction:column; gap:1.5rem; }
+  .eyebrow { font-family:var(--mono); font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
+  h1 { font-size:1.8rem; margin:.3rem 0 0; }
+  h2 { font-size:1.15rem; margin:1rem 0 .4rem; }
+  p { margin:0; color:var(--ink-soft); }
+  figure { margin:0; background:var(--surface); border:1px solid var(--line); border-radius:4px; overflow:hidden; }
+  figure img { display:block; width:100%; height:auto; border-bottom:1px solid var(--line); }
+  figcaption { padding:.85rem 1.1rem; font-size:.9rem; color:var(--ink-soft); }
+  figcaption b { color:var(--ink); }
+  .hash { font-family:var(--mono); font-size:.78rem; color:var(--ink-faint); word-break:break-all; display:block; margin-top:.35rem; }
+  a { color:var(--accent); }
+  .note { background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:4px; padding:1rem 1.15rem; font-size:.9rem; color:var(--ink-soft); }
+  .note b { color:var(--ink); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Netka System Company Limited &middot; Developer ID dYmE5Zm</div>
+    <h1>Review evidence</h1>
+    <p>Material supporting the Google CMP Partner Program application. Everything on this page is published deliberately and contains no credentials.</p>
+  </header>
+
+  <div class="note">
+    <b>What belongs here.</b> Only evidence that is safe in public: behaviour captures, test results, published documentation.
+    Anything carrying an audit password, an API key, a preview token or customer data stays in the controlled evidence location and
+    is given to the reviewers through the application form instead. A file committed here cannot be unpublished — its history stays.
+  </div>
+
+  <h2>GTM template</h2>
+
+  <figure>
+    <img src="./template-editor-tests-2026-08-31.png"
+         alt="Google Tag Manager Template Editor showing every Netka CMP test scenario passing, with console output covering the fail-closed paths.">
+    <figcaption>
+      <b>Template Editor test run — 31 August 2026.</b>
+      Every scenario passes. The console output covers the fail-closed paths as well as the successful ones:
+      a missing API key stops injection, an AutoBlock failure is reported rather than swallowed, and the global
+      denied fallback is applied when no regional row matches.
+      <span class="hash">sha256 7aab4fab41bc29cda830931b090cec84ab61af961f5078fe302ecfd6d0893d96 &middot; 196,229 bytes</span>
+    </figcaption>
+  </figure>
+
+  <h2>Live behaviour</h2>
+  <p>
+    The <a href="../cmp-test/">gtag test site</a> and the <a href="../cmp-test-gtm/">Google Tag Manager test site</a> both print the
+    consent commands they observe, so the default command and its ordering can be checked without a debugger.
+  </p>
+
+  <h2>Documentation</h2>
+  <p><a href="../google-consent-mode-v2-and-gtg.md">Consent Mode v2 and Google tag gateway guide</a></p>
+</div>
+</body>
+</html>
