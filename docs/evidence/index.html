@@ -63,8 +63,11 @@
 
   <h2>Live behaviour</h2>
   <p>
-    The <a href="../cmp-test/">gtag test site</a> and the <a href="../cmp-test-gtm/">Google Tag Manager test site</a> both print the
-    consent commands they observe, so the default command and its ordering can be checked without a debugger.
+    The <a href="../cmp-test/">gtag test site</a> and the <a href="../cmp-test-gtm/">Google Tag Manager test site</a> each print the
+    consent state on the page, so it can be checked without a debugger. On the gtag site that is the
+    <code>consent</code> commands in the data layer and their position relative to the Google tag. The Google Tag Manager
+    site has none to show &mdash; the container applies its default internally &mdash; so it reports the state Google&rsquo;s tags
+    actually read, and each type says whether its value came from the default or from the visitor&rsquo;s choice.
   </p>
 
   <h2>Documentation</h2>
