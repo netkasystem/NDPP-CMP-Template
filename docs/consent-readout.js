@@ -110,7 +110,9 @@
       (ordered ? "Default precedes the Google tag" : "Google tag ran first") + "</span></p>";
 
     html += "<table><thead><tr><th>#</th><th>command</th>";
-    TYPES.forEach(function (t) { html += "<th>" + t.replace("_storage", "") + "</th>"; });
+    // Don't abbreviate: "ad" next to "ad_user_data" reads as a different thing
+    // than ad_storage, and this table is meant to be checked, not skimmed.
+    TYPES.forEach(function (t) { html += "<th>" + t + "</th>"; });
     html += "<th>region</th><th>wait</th></tr></thead><tbody>";
 
     cmds.forEach(function (c) {
