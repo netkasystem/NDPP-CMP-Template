@@ -1,15 +1,16 @@
 /*
  * Consent readout shared by the test pages.
  *
- * Reads what the CMP pushed into dataLayer and renders it, so a reviewer can see
- * the default command, its values and its position relative to the Google tag
- * without opening a debugger. It only reads: nothing here pushes consent state.
+ * Shows the consent state a reviewer would otherwise need a debugger to see: the
+ * gtag route's dataLayer commands where they exist, and otherwise the state
+ * Google's tags actually read. It only reads; nothing here changes consent.
  */
 (function () {
   "use strict";
 
   var TYPES = ["ad_storage", "ad_user_data", "ad_personalization", "analytics_storage",
                "functionality_storage", "personalization_storage", "security_storage"];
+  var REQUIRED = ["ad_storage", "ad_user_data", "ad_personalization", "analytics_storage"];
 
   function consentCommands() {
     var dl = window.dataLayer || [];
@@ -38,6 +39,49 @@
     return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
+  // Where the consent state actually lives depends on the integration.
+  // gtag pushes ['consent','default',…] into dataLayer, so it is visible there.
+  // The GTM route calls setDefaultConsentState, which the container applies
+  // internally and never pushes — but both end up in google_tag_data.ics, which
+  // is what a Google tag reads. Report that, so this page tells the truth on
+  // either route instead of waiting forever for a command that never arrives.
+  function effectiveState() {
+    var gtd = window.google_tag_data || {};
+    var entries = (gtd.ics && gtd.ics.entries) || null;
+    if (!entries) return null;
+    var out = {};
+    for (var k in entries) {
+      if (!Object.prototype.hasOwnProperty.call(entries, k)) continue;
+      var e = entries[k] || {};
+      var has = e.update !== undefined && e.update !== null;
+      out[k] = { value: has ? e.update : e.default, source: has ? "update" : "default" };
+    }
+    return out;
+  }
+
+  function renderState(el) {
+    var state = effectiveState();
+    if (!state) return false;
+    var keys = Object.keys(state);
+    if (!keys.length) return false;
+
+    var allDenied = REQUIRED.every(function (k) { return state[k] && state[k].value === false; });
+    var anyUpdate = keys.some(function (k) { return state[k].source === "update"; });
+
+    var html = '<p><span class="pill ' + (anyUpdate ? "pill-ok" : allDenied ? "pill-ok" : "pill-warn") + '">' +
+      (anyUpdate ? "Your choice has been applied" : allDenied ? "Denied until you choose" : "Some purposes are granted before a choice") +
+      "</span></p>";
+    html += "<table><thead><tr><th>consent type</th><th>state</th><th>from</th></tr></thead><tbody>";
+    TYPES.forEach(function (t) {
+      if (!state[t]) return;
+      var v = state[t].value;
+      html += "<tr><td>" + t + "</td><td class='" + (v ? "granted" : "denied") + "'>" +
+        (v ? "granted" : "denied") + "</td><td>" + state[t].source + "</td></tr>";
+    });
+    el.innerHTML = html + "</tbody></table>";
+    return true;
+  }
+
   function render() {
     var el = document.getElementById("readout");
     if (!el) return;
@@ -50,6 +94,8 @@
 
     var cmds = consentCommands();
     if (!cmds.length) {
+      // No dataLayer commands is normal on the GTM route; show the real state.
+      if (renderState(el)) return;
       el.innerHTML = '<p><span class="pill pill-warn">Waiting</span> No consent command has been observed yet.' +
         (window.__nksTestFetchError
           ? ' The banner configuration failed to load: <code>' + esc(window.__nksTestFetchError) + '</code>'
