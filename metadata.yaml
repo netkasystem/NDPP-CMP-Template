@@ -15,8 +15,8 @@
 homepage: "https://netkasystem.com"
 documentation: "https://github.com/netkasystem/NDPP-CMP-Template/blob/main/docs/google-consent-mode-v2-and-gtg.md"
 versions:
-  - sha: 2a03f2573c7020af0f16a054f43cef310aa1fd3a
-    changeNotes: Removes the try/catch the GTM sandbox rejects, so the template can be imported and edited again; stored consent is read through the sandboxed JSON API and still fails closed
+  - sha: cbb53acc1b6f7a37210a614c32fb96ce7136dcc0
+    changeNotes: Makes the template importable again - removes the try/catch the GTM sandbox rejects and grants the read access setInWindow needs for the duplicate-default flag; stored consent is read through the sandboxed JSON API and still fails closed
   - sha: 4cccb355cb5980dd7779fa97c3ef5eb046819606
     changeNotes: Adds explicit fail-closed regional fallback, validates live consent updates and API keys, enforces asynchronous wait bounds, and expands automated tests
   - sha: 1cf14f4eb91cb093034e41b1370e307dd00c10ec
