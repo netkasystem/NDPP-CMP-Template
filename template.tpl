@@ -314,9 +314,13 @@ if (data.enableConsentMode) {
 
   var storedConsent = getCookieValues('cconsent');
   if (storedConsent && storedConsent.length) {
-    try {
-      onUserConsent(JSON.parse(storedConsent[0]));
-    } catch (e) {
+    // Sandboxed JavaScript forbids try/catch, and the sandboxed JSON API is
+    // built for that: parse() returns undefined for malformed input instead of
+    // throwing. Fail closed — a record we cannot read produces no update.
+    var storedRecord = JSON.parse(storedConsent[0]);
+    if (storedRecord) {
+      onUserConsent(storedRecord);
+    } else {
       log(LOGTAG, 'Stored consent cookie could not be parsed.');
     }
   }

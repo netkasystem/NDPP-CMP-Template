@@ -36,7 +36,19 @@ function runTemplate(overrides = {}, options = {}) {
     setInWindow: record('setInWindow', (name, value) => {
       windows[name] = value;
     }),
-    JSON,
+    // Stand in for GTM's sandboxed JSON API, which returns undefined for
+    // malformed input rather than throwing — the template relies on that,
+    // because sandboxed JavaScript cannot use try/catch.
+    JSON: {
+      stringify: (v) => JSON.stringify(v),
+      parse: (text) => {
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          return undefined;
+        }
+      }
+    },
     queryPermission: record('queryPermission', permission),
     gtagSet: record('gtagSet'),
     encodeUriComponent: encodeURIComponent,
