@@ -1,77 +1,68 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Netka CMP — review evidence</title>
+<title data-th="Netka CMP — หลักฐานประกอบการพิจารณา">Netka CMP — review evidence</title>
 <meta name="robots" content="noindex">
-<style>
-  :root {
-    --ground:#f5f7f9; --surface:#fff; --sunk:#eef1f5; --line:#d7dde5;
-    --ink:#171c24; --ink-soft:#4d5765; --ink-faint:#737f8f; --accent:#23457f;
-    --mono:Consolas,"Cascadia Mono",ui-monospace,monospace;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --ground:#101319; --surface:#171b22; --sunk:#1d222b; --line:#2c333f;
-            --ink:#e4e8ee; --ink-soft:#a8b2c0; --ink-faint:#7b8593; --accent:#8fb0e8; }
-  }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--ground); color:var(--ink); line-height:1.6;
-         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; }
-  .wrap { max-width:900px; margin:0 auto; padding:3rem 1.25rem 5rem; display:flex; flex-direction:column; gap:1.5rem; }
-  .eyebrow { font-family:var(--mono); font-size:.8rem; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); }
-  h1 { font-size:1.8rem; margin:.3rem 0 0; }
-  h2 { font-size:1.15rem; margin:1rem 0 .4rem; }
-  p { margin:0; color:var(--ink-soft); }
-  figure { margin:0; background:var(--surface); border:1px solid var(--line); border-radius:4px; overflow:hidden; }
-  figure img { display:block; width:100%; height:auto; border-bottom:1px solid var(--line); }
-  figcaption { padding:.85rem 1.1rem; font-size:.9rem; color:var(--ink-soft); }
-  figcaption b { color:var(--ink); }
-  .hash { font-family:var(--mono); font-size:.78rem; color:var(--ink-faint); word-break:break-all; display:block; margin-top:.35rem; }
-  a { color:var(--accent); }
-  .note { background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:4px; padding:1rem 1.15rem; font-size:.9rem; color:var(--ink-soft); }
-  .note b { color:var(--ink); }
-</style>
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="eyebrow">Netka System Company Limited &middot; Developer ID dYmE5Zm</div>
-    <h1>Review evidence</h1>
-    <p>Material supporting the Google CMP Partner Program application. Everything on this page is published deliberately and contains no credentials.</p>
-  </header>
 
-  <div class="note">
-    <b>What belongs here.</b> Only evidence that is safe in public: behaviour captures, test results, published documentation.
-    Anything carrying an audit password, an API key, a preview token or customer data stays in the controlled evidence location and
-    is given to the reviewers through the application form instead. A file committed here cannot be unpublished — its history stays.
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="../"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#23457f"/><path d="M16 6.5l7.5 3v6c0 4.6-3.1 8.3-7.5 9.8-4.4-1.5-7.5-5.2-7.5-9.8v-6z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12.6 16.2l2.4 2.4 4.4-4.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Netka CMP <small>Consent Mode</small></a>
+    <nav class="nav" aria-label="Pages">
+      <a href="../"><span data-l="en">Home</span><span data-l="th">หน้าแรก</span></a>
+      <a href="../cmp-test/"><span data-l="en">gtag test</span><span data-l="th">ทดสอบ gtag</span></a>
+      <a href="../cmp-test-gtm/"><span data-l="en">GTM test</span><span data-l="th">ทดสอบ GTM</span></a>
+      <a href="../evidence/" aria-current="page"><span data-l="en">Evidence</span><span data-l="th">หลักฐาน</span></a>
+      <a href="../guide/"><span data-l="en">Guide</span><span data-l="th">คู่มือ</span></a>
+    </nav>
+    <div class="lang" role="group" aria-label="Language / ภาษา">
+      <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-set-lang="th" aria-pressed="false">TH</button>
+    </div>
   </div>
+</header>
 
-  <h2>GTM template</h2>
+<section class="hero">
+  <div class="hero-in">
+    <div class="eyebrow"><span data-l="en">Netka System Company Limited</span><span data-l="th">บริษัท เน็ตก้า ซิสเต็ม จำกัด</span> &middot; Developer ID <span class="id">dYmE5Zm</span></div>
+    <h1><span data-l="en">Review evidence</span><span data-l="th">หลักฐานประกอบการพิจารณา</span></h1>
+    <p class="lead"><span data-l="en">Material supporting the Google CMP Partner Program application. Everything on this page is published deliberately and contains no credentials.</span><span data-l="th">เอกสารประกอบใบสมัคร Google CMP Partner Program ทุกอย่างในหน้านี้ตั้งใจเผยแพร่ และไม่มีข้อมูลรหัสผ่านหรือคีย์ใด ๆ</span></p>
+  </div>
+</section>
+
+<main class="main narrow">
+  <div class="note"><span data-l="en"><b>What belongs here.</b> Only evidence that is safe in public: behaviour captures, test results, published documentation. Anything carrying an audit password, an API key, a preview token or customer data stays in the controlled evidence location and is given to the reviewers through the application form instead. A file committed here cannot be unpublished — its history stays.</span><span data-l="th"><b>อะไรบ้างที่อยู่ในหน้านี้</b> เฉพาะหลักฐานที่เปิดเผยต่อสาธารณะได้อย่างปลอดภัย ได้แก่ ภาพการทำงาน ผลการทดสอบ และเอกสารที่เผยแพร่แล้ว สิ่งใดที่มีรหัสผ่านสำหรับการตรวจ API key, preview token หรือข้อมูลลูกค้า จะเก็บไว้ในที่เก็บหลักฐานที่ควบคุมการเข้าถึง และส่งให้ผู้พิจารณาผ่านแบบฟอร์มใบสมัครแทน ไฟล์ที่ commit ไว้ที่นี่ถอนการเผยแพร่ไม่ได้ เพราะประวัติยังคงอยู่</span></div>
+
+  <h2 class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="4"/></svg><span data-l="en">GTM template</span><span data-l="th">เทมเพลต GTM</span></h2>
 
   <figure>
-    <img src="./template-editor-tests-2026-08-31.png"
-         alt="Google Tag Manager Template Editor showing every Netka CMP test scenario passing, with console output covering the fail-closed paths.">
-    <figcaption>
-      <b>Template Editor test run — 31 August 2026.</b>
-      Every scenario passes. The console output covers the fail-closed paths as well as the successful ones:
-      a missing API key stops injection, an AutoBlock failure is reported rather than swallowed, and the global
-      denied fallback is applied when no regional row matches.
+    <a href="./template-editor-tests-2026-08-31.png"><img src="./template-editor-tests-2026-08-31.png"
+         alt="Google Tag Manager Template Editor showing every Netka CMP test scenario passing, with console output covering the fail-closed paths."></a>
+    <figcaption><span data-l="en"><b>Template Editor test run — 31 August 2026.</b> Every scenario passes. The console output covers the fail-closed paths as well as the successful ones: a missing API key stops injection, an AutoBlock failure is reported rather than swallowed, and the global denied fallback is applied when no regional row matches.</span><span data-l="th"><b>ผลการทดสอบใน Template Editor — 31 สิงหาคม 2026</b> ทุก scenario ผ่าน และผลใน console ครอบคลุมทั้งกรณีที่สำเร็จและกรณีที่ต้องปิดไว้อย่างปลอดภัย (fail-closed) ได้แก่ ไม่มี API key ก็จะไม่ฉีดสคริปต์ AutoBlock ล้มเหลวจะถูกรายงานออกมาไม่ถูกกลืนหาย และเมื่อไม่มีแถวภูมิภาคใดตรง จะใช้ค่า denied ระดับ global แทน</span>
       <span class="hash">sha256 7aab4fab41bc29cda830931b090cec84ab61af961f5078fe302ecfd6d0893d96 &middot; 196,229 bytes</span>
     </figcaption>
   </figure>
 
-  <h2>Live behaviour</h2>
-  <p>
-    The <a href="../cmp-test/">gtag test site</a> and the <a href="../cmp-test-gtm/">Google Tag Manager test site</a> each print the
-    consent state on the page, so it can be checked without a debugger. On the gtag site that is the
-    <code>consent</code> commands in the data layer and their position relative to the Google tag. The Google Tag Manager
-    site has none to show &mdash; the container applies its default internally &mdash; so it reports the state Google&rsquo;s tags
-    actually read, and each type says whether its value came from the default or from the visitor&rsquo;s choice.
-  </p>
+  <h2 class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span data-l="en">Live behaviour</span><span data-l="th">การทำงานจริง</span></h2>
+  <div class="card"><p><span data-l="en">The <a href="../cmp-test/">gtag test site</a> and the <a href="../cmp-test-gtm/">Google Tag Manager test site</a> each print the consent state on the page, so it can be checked without a debugger. On the gtag site that is the <code>consent</code> commands in the data layer and their position relative to the Google tag. The Google Tag Manager site has none to show &mdash; the container applies its default internally &mdash; so it reports the state Google&rsquo;s tags actually read, and each type says whether its value came from the default or from the visitor&rsquo;s choice.</span><span data-l="th"><a href="../cmp-test/">หน้าทดสอบ gtag</a> และ<a href="../cmp-test-gtm/">หน้าทดสอบ Google Tag Manager</a> ต่างแสดงสถานะความยินยอมไว้บนหน้าเว็บ จึงตรวจได้โดยไม่ต้องใช้ debugger ในหน้า gtag จะแสดงคำสั่ง <code>consent</code> ใน data layer และตำแหน่งของคำสั่งเทียบกับ Google tag ส่วนหน้า Google Tag Manager ไม่มีคำสั่งให้แสดง &mdash; container ใช้ค่าเริ่มต้นภายในเอง &mdash; จึงแสดงสถานะที่ Google tag อ่านได้จริงแทน และระบุว่าค่าของแต่ละประเภทมาจากค่าเริ่มต้นหรือจากตัวเลือกของผู้เข้าชม</span></p></div>
 
-  <h2>Documentation</h2>
-  <p><a href="../google-consent-mode-v2-and-gtg.md">Consent Mode v2 and Google tag gateway guide</a></p>
-</div>
+  <h2 class="section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 006.5 23H20v-5"/></svg><span data-l="en">Documentation</span><span data-l="th">เอกสาร</span></h2>
+  <div class="links">
+    <a class="btn" href="../guide/"><span data-l="en">Consent Mode v2 and Google tag gateway guide</span><span data-l="th">คู่มือ Consent Mode v2 และ Google tag gateway</span></a>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <p><span data-l="en">Netka System Company Limited</span><span data-l="th">บริษัท เน็ตก้า ซิสเต็ม จำกัด</span> &middot; Developer ID dYmE5Zm</p>
+    <p><a href="https://github.com/netkasystem/NDPP-CMP-Template">GitHub</a></p>
+  </div>
+</footer>
+
 </body>
 </html>

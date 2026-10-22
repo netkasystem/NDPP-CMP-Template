@@ -35,6 +35,16 @@
     return -1;
   }
 
+  // The page's language comes from assets/site.js; English when it is absent.
+  function L(en, th) {
+    return window.nksLang && window.nksLang() === "th" ? th : en;
+  }
+
+  function status(ok, title, detail) {
+    return '<p class="status ' + (ok ? "status-ok" : "status-warn") + '">' + title +
+      (detail ? " <span>" + detail + "</span>" : "") + "</p>";
+  }
+
   function esc(v) {
     return String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
@@ -68,17 +78,19 @@
     var allDenied = REQUIRED.every(function (k) { return state[k] && state[k].value === false; });
     var anyUpdate = keys.some(function (k) { return state[k].source === "update"; });
 
-    var html = '<p><span class="pill ' + (anyUpdate ? "pill-ok" : allDenied ? "pill-ok" : "pill-warn") + '">' +
-      (anyUpdate ? "Your choice has been applied" : allDenied ? "Denied until you choose" : "Some purposes are granted before a choice") +
-      "</span></p>";
-    html += "<table><thead><tr><th>consent type</th><th>state</th><th>from</th></tr></thead><tbody>";
+    var html = status(anyUpdate || allDenied,
+      anyUpdate ? L("Your choice has been applied", "ระบบใช้ตัวเลือกของคุณแล้ว")
+        : allDenied ? L("Denied until you choose", "ปฏิเสธไว้ทั้งหมดจนกว่าคุณจะเลือก")
+        : L("Some purposes are granted before a choice", "มีบางวัตถุประสงค์ได้รับอนุญาตก่อนที่คุณจะเลือก"));
+    html += '<div class="table-scroll"><table><thead><tr><th>' + L("consent type", "ประเภทความยินยอม") +
+      "</th><th>" + L("state", "สถานะ") + "</th><th>" + L("from", "ที่มา") + "</th></tr></thead><tbody>";
     TYPES.forEach(function (t) {
       if (!state[t]) return;
       var v = state[t].value;
       html += "<tr><td>" + t + "</td><td class='" + (v ? "granted" : "denied") + "'>" +
         (v ? "granted" : "denied") + "</td><td>" + state[t].source + "</td></tr>";
     });
-    el.innerHTML = html + "</tbody></table>";
+    el.innerHTML = html + "</tbody></table></div>";
     return true;
   }
 
@@ -87,8 +99,9 @@
     if (!el) return;
 
     if (window.__nksTestConfigMissing) {
-      el.innerHTML = '<p><span class="pill pill-warn">Not configured</span> ' +
-        'This page has no banner key yet. Fill in <code>config.js</code> before publishing.</p>';
+      el.innerHTML = status(false, L("Not configured", "ยังไม่ได้ตั้งค่า"),
+        L("This page has no banner key yet. Fill in <code>config.js</code> before publishing.",
+          "หน้านี้ยังไม่มี banner key ใส่ค่าใน <code>config.js</code> ก่อนเผยแพร่"));
       return;
     }
 
@@ -96,24 +109,27 @@
     if (!cmds.length) {
       // No dataLayer commands is normal on the GTM route; show the real state.
       if (renderState(el)) return;
-      el.innerHTML = '<p><span class="pill pill-warn">Waiting</span> No consent command has been observed yet.' +
+      el.innerHTML = status(false, L("Waiting", "กำลังรอ"),
+        L("No consent command has been observed yet.", "ยังไม่พบคำสั่ง consent") +
         (window.__nksTestFetchError
-          ? ' The banner configuration failed to load: <code>' + esc(window.__nksTestFetchError) + '</code>'
-          : '') + '</p>';
+          ? " " + L("The banner configuration failed to load:", "โหลดการตั้งค่าแบนเนอร์ไม่สำเร็จ:") +
+            " <code>" + esc(window.__nksTestFetchError) + "</code>"
+          : ""));
       return;
     }
 
     var tagAt = firstGoogleTagIndex();
     var ordered = tagAt === -1 || cmds[0].index < tagAt;
 
-    var html = '<p><span class="pill ' + (ordered ? "pill-ok" : "pill-warn") + '">' +
-      (ordered ? "Default precedes the Google tag" : "Google tag ran first") + "</span></p>";
+    var html = status(ordered, ordered
+      ? L("Default precedes the Google tag", "ค่าเริ่มต้นถูกส่งก่อน Google tag")
+      : L("Google tag ran first", "Google tag ทำงานก่อนค่าเริ่มต้น"));
 
-    html += "<table><thead><tr><th>#</th><th>command</th>";
+    html += '<div class="table-scroll"><table><thead><tr><th>#</th><th>' + L("command", "คำสั่ง") + "</th>";
     // Don't abbreviate: "ad" next to "ad_user_data" reads as a different thing
     // than ad_storage, and this table is meant to be checked, not skimmed.
     TYPES.forEach(function (t) { html += "<th>" + t + "</th>"; });
-    html += "<th>region</th><th>wait</th></tr></thead><tbody>";
+    html += "<th>" + L("region", "ภูมิภาค") + "</th><th>" + L("wait", "รอ (ms)") + "</th></tr></thead><tbody>";
 
     cmds.forEach(function (c) {
       html += "<tr><td>" + c.index + "</td><td>" + esc(c.kind) + "</td>";
@@ -126,7 +142,7 @@
       html += "<td>" + region + "</td><td>" + (c.payload.wait_for_update || "&middot;") + "</td></tr>";
     });
 
-    el.innerHTML = html + "</tbody></table>";
+    el.innerHTML = html + "</tbody></table></div>";
   }
 
   function wire(id, fn) {
@@ -143,7 +159,8 @@
       window.CookieConsent.showSettings();
       return;
     }
-    alert("The preference control has not loaded yet. Wait a moment and try again.");
+    alert(L("The preference control has not loaded yet. Wait a moment and try again.",
+            "ตัวควบคุมการตั้งค่าคุกกี้ยังโหลดไม่เสร็จ รอสักครู่แล้วลองใหม่"));
   });
 
   wire("reset", function () {
@@ -155,6 +172,8 @@
     });
     location.reload();
   });
+
+  document.addEventListener("nks:lang", render);
 
   render();
   // The banner arrives after a network round trip and updates follow a click, so

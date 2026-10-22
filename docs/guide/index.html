@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-th="Netka CMP — คู่มือ Consent Mode v2 และ Google tag gateway">Netka CMP — Consent Mode v2 and Google tag gateway guide</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="../assets/site.css">
+<script src="../assets/site.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="../"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#23457f"/><path d="M16 6.5l7.5 3v6c0 4.6-3.1 8.3-7.5 9.8-4.4-1.5-7.5-5.2-7.5-9.8v-6z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12.6 16.2l2.4 2.4 4.4-4.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Netka CMP <small>Consent Mode</small></a>
+    <nav class="nav" aria-label="Pages">
+      <a href="../"><span data-l="en">Home</span><span data-l="th">หน้าแรก</span></a>
+      <a href="../cmp-test/"><span data-l="en">gtag test</span><span data-l="th">ทดสอบ gtag</span></a>
+      <a href="../cmp-test-gtm/"><span data-l="en">GTM test</span><span data-l="th">ทดสอบ GTM</span></a>
+      <a href="../evidence/"><span data-l="en">Evidence</span><span data-l="th">หลักฐาน</span></a>
+      <a href="../guide/" aria-current="page"><span data-l="en">Guide</span><span data-l="th">คู่มือ</span></a>
+    </nav>
+    <div class="lang" role="group" aria-label="Language / ภาษา">
+      <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-set-lang="th" aria-pressed="false">TH</button>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-in">
+    <div class="eyebrow"><span data-l="en">Netka System Company Limited</span><span data-l="th">บริษัท เน็ตก้า ซิสเต็ม จำกัด</span> &middot; Developer ID <span class="id">dYmE5Zm</span></div>
+    <h1><span data-l="en">Google Consent Mode v2 and Google tag gateway</span><span data-l="th">Google Consent Mode v2 และ Google tag gateway</span></h1>
+    <p class="lead"><span data-l="en">Setup for Basic and Advanced configurations, regional defaults, and GTG with late consent.</span><span data-l="th">การตั้งค่าแบบ Basic และ Advanced ค่าเริ่มต้นรายภูมิภาค และการใช้ GTG เมื่อพบ late consent</span></p>
+    <div class="chips">
+      <a class="chip" href="../google-consent-mode-v2-and-gtg.md"><span data-l="en">Markdown source</span><span data-l="th">ต้นฉบับ Markdown</span></a>
+    </div>
+  </div>
+</section>
+
+<main class="main">
+  <div class="doc">
+    <nav class="toc" aria-label="Contents">
+    <b><span data-l="en">Contents</span><span data-l="th">สารบัญ</span></b>
+    <a href="#scope"><span data-l="en">Scope and legal notice</span><span data-l="th">ขอบเขตและข้อสงวนทางกฎหมาย</span></a>
+    <a href="#mapping"><span data-l="en">Consent type mapping</span><span data-l="th">การจับคู่ประเภทความยินยอม</span></a>
+    <a href="#modes"><span data-l="en">Choose Basic or Advanced mode</span><span data-l="th">เลือกโหมด Basic หรือ Advanced</span></a>
+    <a href="#regional"><span data-l="en">Regional defaults and no-banner measurement</span><span data-l="th">ค่าเริ่มต้นรายภูมิภาคและการวัดผลในพื้นที่ที่ไม่แสดงแบนเนอร์</span></a>
+    <a href="#google-ready"><span data-l="en">Google-ready non-TCF banner</span><span data-l="th">แบนเนอร์แบบ Google-ready ที่ไม่ใช้ TCF</span></a>
+    <a href="#verify"><span data-l="en">Verify defaults and updates</span><span data-l="th">ตรวจสอบค่าเริ่มต้นและการอัปเดต</span></a>
+    <a href="#gtg"><span data-l="en">Google tag gateway and late consent</span><span data-l="th">Google tag gateway และ late consent</span></a>
+    <a href="#support"><span data-l="en">Support escalation</span><span data-l="th">การติดต่อฝ่ายสนับสนุน</span></a>
+    </nav>
+    <article class="prose">
+<section id="scope">
+<h2><span data-l="en">Scope and legal notice</span><span data-l="th">ขอบเขตและข้อสงวนทางกฎหมาย</span></h2>
+<p data-l="en">Google Consent Mode changes how Google tags behave based on consent signals. It does not by itself make a site compliant with GDPR, Thailand PDPA, or another law. Each customer remains responsible for its legal basis, banner wording, purpose and vendor disclosures, region policy, tag configuration, and legal review.</p>
+<p data-l="th">Google Consent Mode เปลี่ยนการทำงานของ Google tag ตามสัญญาณความยินยอม แต่ตัวมันเองไม่ได้ทำให้เว็บไซต์สอดคล้องกับ GDPR, PDPA ของไทย หรือกฎหมายอื่น ลูกค้าแต่ละรายยังคงต้องรับผิดชอบฐานทางกฎหมาย ข้อความบนแบนเนอร์ การเปิดเผยวัตถุประสงค์และผู้ให้บริการ นโยบายรายภูมิภาค การตั้งค่า tag และการตรวจทานทางกฎหมายเอง</p>
+<p data-l="en">Official Google references:</p>
+<p data-l="th">เอกสารอ้างอิงทางการของ Google:</p>
+<ul><li><a href="https://developers.google.com/tag-platform/security/concepts/consent-mode">Consent Mode overview</a></li><li><a href="https://developers.google.com/tag-platform/security/guides/consent">Set up Consent Mode on websites</a></li><li><a href="https://developers.google.com/tag-platform/tag-manager/templates/consent-apis">Create a Consent Mode template</a></li><li><a href="https://developers.google.com/tag-platform/tag-manager/gateway">Google tag gateway for advertisers</a></li></ul>
+</section>
+<section id="mapping">
+<h2><span data-l="en">Consent type mapping</span><span data-l="th">การจับคู่ประเภทความยินยอม</span></h2>
+<div class="table-scroll"><table><thead><tr><th><span data-l="en">Google consent type</span><span data-l="th">ประเภทความยินยอมของ Google</span></th><th><span data-l="en">Default Netka purpose</span><span data-l="th">วัตถุประสงค์เริ่มต้นของ Netka</span></th></tr></thead><tbody><tr><td><code>ad_storage</code></td><td><span data-l="en">Targeting/Advertising</span><span data-l="th">Targeting/Advertising (โฆษณา)</span></td></tr><tr><td><code>ad_user_data</code></td><td><span data-l="en">Targeting/Advertising data sent to Google</span><span data-l="th">ข้อมูล Targeting/Advertising ที่ส่งให้ Google</span></td></tr><tr><td><code>ad_personalization</code></td><td><span data-l="en">Targeting/Advertising personalization</span><span data-l="th">การปรับโฆษณาให้เหมาะกับบุคคล (Targeting/Advertising)</span></td></tr><tr><td><code>analytics_storage</code></td><td><span data-l="en">Performance/Analytics</span><span data-l="th">Performance/Analytics (วิเคราะห์)</span></td></tr><tr><td><code>functionality_storage</code></td><td><span data-l="en">Functional</span><span data-l="th">Functional (การใช้งาน)</span></td></tr><tr><td><code>personalization_storage</code></td><td><span data-l="en">Targeting/Personalization</span><span data-l="th">Targeting/Personalization (ปรับให้เหมาะกับบุคคล)</span></td></tr><tr><td><code>security_storage</code></td><td><span data-l="en">Necessary/Security</span><span data-l="th">Necessary/Security (จำเป็น/ความปลอดภัย)</span></td></tr></tbody></table></div>
+<p data-l="en">Reject All keeps all optional Google consent types denied. Accept All grants only purposes described to the visitor. A granular choice maps each purpose independently and is never converted to a universal grant.</p>
+<p data-l="th">ปฏิเสธทั้งหมด (Reject All) จะคงประเภทความยินยอมของ Google ที่ไม่จำเป็นทั้งหมดไว้เป็น denied ยอมรับทั้งหมด (Accept All) จะอนุญาตเฉพาะวัตถุประสงค์ที่อธิบายให้ผู้เข้าชมทราบแล้ว ส่วนการเลือกรายข้อจะจับคู่แต่ละวัตถุประสงค์แยกกัน และจะไม่ถูกแปลงเป็นการอนุญาตทั้งหมด</p>
+<p data-l="en">Social Media alone does not grant Google advertising consent. A social service used for advertising must also be classified and disclosed under Targeting/Advertising.</p>
+<p data-l="th">การยินยอม Social Media อย่างเดียวไม่ถือเป็นการยินยอมโฆษณาของ Google บริการโซเชียลที่ใช้เพื่อโฆษณาต้องจัดหมวดและเปิดเผยภายใต้ Targeting/Advertising ด้วย</p>
+</section>
+<section id="modes">
+<h2><span data-l="en">Choose Basic or Advanced mode</span><span data-l="th">เลือกโหมด Basic หรือ Advanced</span></h2>
+<p data-l="en">Netka provides two distinct deployment paths.</p>
+<p data-l="th">Netka มีวิธีติดตั้งให้เลือก 2 แบบที่แตกต่างกัน</p>
+<h3><span data-l="en">Basic mode: block Google tags before consent</span><span data-l="th">โหมด Basic: บล็อก Google tag ไว้จนกว่าจะได้รับความยินยอม</span></h3>
+<p data-l="en">Basic mode disables Consent Mode <code>default</code> and <code>update</code> commands and blocks GTM until the visitor makes an affirmative choice. The AutoBlock bootstrap must be placed directly in the page before the Netka banner:</p>
+<p data-l="th">โหมด Basic ปิดคำสั่ง <code>default</code> และ <code>update</code> ของ Consent Mode และบล็อก GTM ไว้จนกว่าผู้เข้าชมจะเลือกยินยอมอย่างชัดแจ้ง ต้องวาง AutoBlock bootstrap ไว้ในหน้าเว็บโดยตรง ก่อนแบนเนอร์ของ Netka:</p>
+<pre><code>&lt;script&gt;
+window.NKS_CONSENT_MODE_CONFIG = { mode: &quot;basic&quot; };
+&lt;/script&gt;
+&lt;script src=&quot;https://cookiebanner.pdpanetka.com/nksAutoBlock.min.js&quot;&gt;&lt;/script&gt;</code></pre>
+<p data-l="en">Load the customer-specific Netka banner immediately after AutoBlock. Remove static GTM, <code>gtag.js</code>, Google Analytics, Ads and DoubleClick script elements from the page and let the configured Netka loader inject them only after consent. Merely placing AutoBlock above a parser-inserted static script is not a supported blocking guarantee. Recognized Google URLs added later through patched DOM APIs are neutralized as defense in depth. After Accept, Netka loads the saved GTM ID; Reject keeps it blocked. Returning accepted and rejected choices must be checked in browser QA.</p>
+<p data-l="th">โหลดแบนเนอร์ Netka ของลูกค้ารายนั้นต่อจาก AutoBlock ทันที นำ script ของ GTM, <code>gtag.js</code>, Google Analytics, Ads และ DoubleClick ที่ฝังไว้แบบ static ออกจากหน้า แล้วให้ตัวโหลดของ Netka ที่ตั้งค่าไว้ฉีดเข้ามาหลังได้รับความยินยอมเท่านั้น การวาง AutoBlock ไว้เหนือ script แบบ static ที่ parser ใส่เองไม่ถือเป็นการรับประกันการบล็อก URL ของ Google ที่รู้จักและถูกเพิ่มเข้ามาภายหลังผ่าน DOM API ที่ถูก patch จะถูกทำให้ไม่มีผลเป็นการป้องกันอีกชั้น หลังกดยอมรับ Netka จะโหลด GTM ID ที่บันทึกไว้ ส่วนการปฏิเสธจะคงการบล็อกไว้ ต้องตรวจกรณีผู้เข้าชมที่กลับมาพร้อมตัวเลือกยอมรับและปฏิเสธใน QA บนเบราว์เซอร์ด้วย</p>
+<p data-l="en">A monolithic GTM container is released only after Accept All (or all configured optional purposes are granted). A partial granular choice does not release the whole container, because doing so could activate tags for an ungranted purpose. Customers that need granular Basic loading must separate tags by purpose and apply equivalent purpose-specific blocking/triggers during implementation review.</p>
+<p data-l="th">container GTM แบบรวมก้อนเดียวจะถูกปล่อยหลังยอมรับทั้งหมดเท่านั้น (หรือเมื่อวัตถุประสงค์ที่ไม่จำเป็นที่ตั้งค่าไว้ได้รับอนุญาตครบ) การเลือกรายข้อเพียงบางส่วนจะไม่ปล่อยทั้ง container เพราะอาจทำให้ tag ของวัตถุประสงค์ที่ไม่ได้รับอนุญาตทำงาน ลูกค้าที่ต้องการโหลดแบบ Basic รายวัตถุประสงค์ต้องแยก tag ตามวัตถุประสงค์ และใช้การบล็อก/trigger รายวัตถุประสงค์ที่เทียบเท่ากันในขั้นตรวจทานการติดตั้ง</p>
+<p data-l="en">A GTM template cannot retroactively block the GTM container that is already executing it. Therefore, do not describe a CMP tag installed inside GTM as a Basic-mode installation. Use the direct pre-GTM bootstrap above.</p>
+<p data-l="th">เทมเพลต GTM ไม่สามารถย้อนกลับไปบล็อก container GTM ที่กำลังรันตัวมันอยู่ได้ จึงห้ามเรียก CMP tag ที่ติดตั้งใน GTM ว่าเป็นการติดตั้งแบบโหมด Basic ให้ใช้ bootstrap ที่วางก่อน GTM โดยตรงตามด้านบนแทน</p>
+<h3><span data-l="en">Advanced mode: Consent Mode defaults and updates</span><span data-l="th">โหมด Advanced: ค่าเริ่มต้นและการอัปเดตของ Consent Mode</span></h3>
+<p data-l="en">Advanced mode loads consent-aware Google tags with explicit defaults and sends updates after Accept, Reject, granular Save, or withdrawal:</p>
+<p data-l="th">โหมด Advanced โหลด Google tag ที่รองรับความยินยอมพร้อมค่าเริ่มต้นที่กำหนดชัดเจน และส่งการอัปเดตหลังผู้เข้าชมยอมรับ ปฏิเสธ บันทึกการเลือกรายข้อ หรือถอนความยินยอม:</p>
+<pre><code>&lt;script&gt;
+window.NKS_CONSENT_MODE_CONFIG = { mode: &quot;advanced&quot; };
+&lt;/script&gt;</code></pre>
+<p data-l="en">For codeless GTM setup, install the Netka CMP Community Template and fire it on <strong>Consent Initialization - All Pages</strong>. Configure the global and regional rows described below. Google tags may send limited cookieless measurements while the applicable consent signals remain denied.</p>
+<p data-l="th">สำหรับการตั้งค่าใน GTM โดยไม่ต้องเขียนโค้ด ให้ติดตั้ง Netka CMP Community Template และตั้งให้ทำงานที่ <strong>Consent Initialization - All Pages</strong> แล้วตั้งค่าแถว global และแถวรายภูมิภาคตามที่อธิบายด้านล่าง Google tag อาจส่งข้อมูลการวัดผลแบบจำกัดที่ไม่ใช้คุกกี้ได้ ระหว่างที่สัญญาณความยินยอมที่เกี่ยวข้องยังเป็น denied</p>
+<p data-l="en">Choosing a mode is a customer policy decision. Advanced mode must not be described as automatically compliant with a law.</p>
+<p data-l="th">การเลือกโหมดเป็นการตัดสินใจเชิงนโยบายของลูกค้า ห้ามอธิบายว่าโหมด Advanced สอดคล้องกับกฎหมายโดยอัตโนมัติ</p>
+</section>
+<section id="regional">
+<h2><span data-l="en">Regional defaults and no-banner measurement</span><span data-l="th">ค่าเริ่มต้นรายภูมิภาคและการวัดผลในพื้นที่ที่ไม่แสดงแบนเนอร์</span></h2>
+<p data-l="en">Use the same reviewed region policy for banner visibility and Consent Mode defaults. In the Netka GTM template, add:</p>
+<p data-l="th">ใช้นโยบายรายภูมิภาคที่ผ่านการตรวจทานแล้วชุดเดียวกัน ทั้งสำหรับการแสดงแบนเนอร์และค่าเริ่มต้นของ Consent Mode ในเทมเพลต Netka GTM ให้เพิ่ม:</p>
+<div class="table-scroll"><table><thead><tr><th><span data-l="en">Region</span><span data-l="th">ภูมิภาค</span></th><th><span data-l="en">Granted consent types</span><span data-l="th">ประเภทที่อนุญาต</span></th><th><span data-l="en">Denied consent types</span><span data-l="th">ประเภทที่ปฏิเสธ</span></th></tr></thead><tbody><tr><td><span data-l="en">blank/global</span><span data-l="th">ว่าง/global</span></td><td><code>ad_storage,analytics_storage,ad_user_data,ad_personalization</code></td><td><span data-l="en">blank</span><span data-l="th">ว่าง</span></td></tr><tr><td><span data-l="en">banner regions, for example <code>DE,FR</code></span><span data-l="th">ภูมิภาคที่แสดงแบนเนอร์ เช่น <code>DE,FR</code></span></td><td><span data-l="en">blank</span><span data-l="th">ว่าง</span></td><td><code>ad_storage,analytics_storage,ad_user_data,ad_personalization</code></td></tr></tbody></table></div>
+<p data-l="en">The global row applies where no banner appears. The more-specific regional row requires a choice where the banner is shown. If regional rows are present but the global row is missing, the template inserts a denied global fallback. Duplicate or invalid regional assignments also fail closed.</p>
+<p data-l="th">แถว global ใช้กับพื้นที่ที่ไม่แสดงแบนเนอร์ ส่วนแถวรายภูมิภาคซึ่งเจาะจงกว่าจะบังคับให้ผู้เข้าชมต้องเลือกในพื้นที่ที่แสดงแบนเนอร์ ถ้ามีแถวรายภูมิภาคแต่ไม่มีแถว global เทมเพลตจะใส่ค่า global เป็น denied ให้เอง การกำหนดภูมิภาคซ้ำหรือไม่ถูกต้องก็จะปิดไว้อย่างปลอดภัย (fail closed) เช่นกัน</p>
+<p data-l="en">For a direct-script deployment, set the equivalent policy before AutoBlock:</p>
+<p data-l="th">สำหรับการติดตั้งแบบวาง script โดยตรง ให้ตั้งนโยบายที่เทียบเท่ากันไว้ก่อน AutoBlock:</p>
+<pre><code>&lt;script&gt;
+window.NKS_CONSENT_MODE_CONFIG = {
+  mode: &quot;advanced&quot;,
+  bannerRegions: [&quot;DE&quot;, &quot;FR&quot;],
+  grantOutsideBannerRegions: true,
+  waitForUpdate: 2000
+};
+&lt;/script&gt;</code></pre>
+<p data-l="en">Replace the example regions with an approved policy. A timeout, missing setting, or geo error is not proof that a visitor is outside a region and must fail closed. A stored user rejection takes priority over a later no-banner result.</p>
+<p data-l="th">แทนภูมิภาคตัวอย่างด้วยนโยบายที่ได้รับอนุมัติแล้ว การหมดเวลา การตั้งค่าที่ขาดหาย หรือข้อผิดพลาดในการระบุตำแหน่ง ไม่ใช่หลักฐานว่าผู้เข้าชมอยู่นอกภูมิภาค และต้องปิดไว้อย่างปลอดภัย (fail closed) การปฏิเสธที่ผู้ใช้บันทึกไว้แล้วมีลำดับความสำคัญเหนือผลแบบไม่แสดงแบนเนอร์ที่ได้ภายหลัง</p>
+</section>
+<section id="google-ready">
+<h2><span data-l="en">Google-ready non-TCF banner</span><span data-l="th">แบนเนอร์แบบ Google-ready ที่ไม่ใช้ TCF</span></h2>
+<p data-l="en">When Consent Mode is enabled without TCF, select the <strong>Google-ready banner template</strong> in the Netka GUI. It must:</p>
+<p data-l="th">เมื่อเปิดใช้ Consent Mode โดยไม่ใช้ TCF ให้เลือก <strong>Google-ready banner template</strong> ใน Netka GUI ซึ่งต้อง:</p>
+<ol data-l="en"><li>explain analytics and, where enabled, personalization/advertising purposes;</li><li>provide an affirmative Accept option and a clear Reject/customize path;</li><li>expose <a href="https://business.safety.google/privacy/">Google's Business Data Responsibility page</a> inside the banner or its in-banner details;</li><li>leave optional categories off until affirmative consent where opt-in applies;</li><li>let the visitor reopen preferences and withdraw consent.</li></ol>
+<ol data-l="th"><li>อธิบายวัตถุประสงค์ด้านการวิเคราะห์ และวัตถุประสงค์ด้านการปรับให้เหมาะกับบุคคล/โฆษณาในกรณีที่เปิดใช้</li><li>มีตัวเลือกยอมรับอย่างชัดแจ้ง และมีทางปฏิเสธ/ปรับแต่งที่ชัดเจน</li><li>แสดงลิงก์ไปยัง<a href="https://business.safety.google/privacy/">หน้า Business Data Responsibility ของ Google</a> ในแบนเนอร์หรือในรายละเอียดภายในแบนเนอร์</li><li>ปิดหมวดที่ไม่จำเป็นไว้จนกว่าจะได้รับความยินยอมอย่างชัดแจ้ง ในกรณีที่ใช้หลัก opt-in</li><li>ให้ผู้เข้าชมเปิดการตั้งค่าอีกครั้งและถอนความยินยอมได้</li></ol>
+<p data-l="en">The generated configuration uses <code>consentMode.googleReadyTemplate: true</code>. Netka then preserves the Google privacy link, Accept/Reject controls, optional-off defaults, and a link-capable banner layout. Confirm the rendered GUI and generated configuration during QA.</p>
+<p data-l="th">การตั้งค่าที่สร้างขึ้นจะใช้ <code>consentMode.googleReadyTemplate: true</code> จากนั้น Netka จะคงลิงก์ความเป็นส่วนตัวของ Google ปุ่มยอมรับ/ปฏิเสธ ค่าเริ่มต้นที่ปิดหมวดไม่จำเป็น และ layout แบนเนอร์ที่ใส่ลิงก์ได้ไว้ให้ ตรวจยืนยันหน้าตา GUI และการตั้งค่าที่สร้างขึ้นระหว่าง QA</p>
+</section>
+<section id="verify">
+<h2><span data-l="en">Verify defaults and updates</span><span data-l="th">ตรวจสอบค่าเริ่มต้นและการอัปเดต</span></h2>
+<p data-l="en">Use GTM Preview, Tag Assistant, browser storage, and the Netka diagnostic report on every public landing page. Verify that:</p>
+<p data-l="th">ใช้ GTM Preview, Tag Assistant, storage ของเบราว์เซอร์ และรายงานวินิจฉัยของ Netka กับทุก landing page สาธารณะ แล้วตรวจว่า:</p>
+<ul data-l="en"><li>Advanced defaults contain <code>ad_storage</code>, <code>analytics_storage</code>, <code>ad_user_data</code>, and <code>ad_personalization</code> before any Google tracking event;</li><li>Basic mode produces no Consent Mode default/update commands and loads Google tags only after Accept;</li><li>Accept, Reject, granular Save, and withdrawal produce the expected behavior;</li><li>returning accepted and rejected choices are restored;</li><li>no optional cookie is written before the applicable choice;</li><li>the banner appears inside configured regions and outside-region behavior follows the reviewed policy;</li><li>the Netka Developer ID is visible in the Google debugging tools.</li></ul>
+<ul data-l="th"><li>ค่าเริ่มต้นโหมด Advanced มี <code>ad_storage</code>, <code>analytics_storage</code>, <code>ad_user_data</code> และ <code>ad_personalization</code> ก่อนเหตุการณ์ติดตามใด ๆ ของ Google</li><li>โหมด Basic ไม่สร้างคำสั่ง default/update ของ Consent Mode และโหลด Google tag หลังกดยอมรับเท่านั้น</li><li>การยอมรับ ปฏิเสธ บันทึกรายข้อ และถอนความยินยอม ทำงานตามที่คาดไว้</li><li>ตัวเลือกยอมรับและปฏิเสธของผู้เข้าชมที่กลับมาถูกเรียกคืนได้ถูกต้อง</li><li>ไม่มีคุกกี้ที่ไม่จำเป็นถูกเขียนก่อนผู้เข้าชมเลือก</li><li>แบนเนอร์แสดงในภูมิภาคที่ตั้งค่าไว้ และการทำงานนอกภูมิภาคเป็นไปตามนโยบายที่ตรวจทานแล้ว</li><li>เห็น Developer ID ของ Netka ในเครื่องมือ debug ของ Google</li></ul>
+<p data-l="en">A <strong>late consent</strong> result means that the CMP default or TCF stub was observed after a Google tag began loading. A visible banner does not make this warning safe to ignore.</p>
+<p data-l="th">ผล <strong>late consent</strong> หมายถึงพบค่าเริ่มต้นของ CMP หรือ TCF stub หลังจากที่ Google tag เริ่มโหลดไปแล้ว การที่แบนเนอร์แสดงอยู่ไม่ได้ทำให้มองข้ามคำเตือนนี้ได้</p>
+</section>
+<section id="gtg">
+<h2><span data-l="en">Google tag gateway and late consent</span><span data-l="th">Google tag gateway และ late consent</span></h2>
+<p data-l="en">Google tag gateway (GTG) can serve Google tags through a site's first-party infrastructure. One-click CDN enrollment can alter where and when a tag is injected, so the CMP may not control import order.</p>
+<p data-l="th">Google tag gateway (GTG) ให้บริการ Google tag ผ่านโครงสร้างพื้นฐาน first-party ของเว็บไซต์ได้ การลงทะเบียนผ่าน CDN แบบคลิกเดียวอาจเปลี่ยนตำแหน่งและเวลาที่ tag ถูกฉีดเข้ามา ทำให้ CMP อาจควบคุมลำดับการโหลดไม่ได้</p>
+<p data-l="en">When Netka diagnostics report late consent:</p>
+<p data-l="th">เมื่อรายงานวินิจฉัยของ Netka พบ late consent:</p>
+<ol data-l="en"><li>Inspect the CDN/tagging configuration and Google's <a href="https://developers.google.com/tag-platform/tag-manager/gateway">GTG setup documentation</a>.</li><li>Use Tag Assistant and browser Network tools to identify the first-party GTG path and confirm whether it begins before the consent default.</li><li>If GTG is confirmed, prefer U+C/Advanced Consent Mode for consent-aware tags and configure Data Transmission Controls and Global Consent Defaults for the customer's needs and reviewed region policy.</li><li>Alternatively, migrate the implementation into one GTM container and deploy GTM through GTG, or configure GTG manually so the customer controls import order.</li><li>Re-run diagnostics on every landing page, including campaign and deep links.</li></ol>
+<ol data-l="th"><li>ตรวจการตั้งค่า CDN/tagging และ<a href="https://developers.google.com/tag-platform/tag-manager/gateway">เอกสารการตั้งค่า GTG ของ Google</a></li><li>ใช้ Tag Assistant และเครื่องมือ Network ของเบราว์เซอร์หา path ของ GTG แบบ first-party และยืนยันว่าเริ่มโหลดก่อนค่าเริ่มต้นของความยินยอมหรือไม่</li><li>ถ้ายืนยันได้ว่าใช้ GTG ให้เลือก U+C/Advanced Consent Mode สำหรับ tag ที่รองรับความยินยอม และตั้งค่า Data Transmission Controls กับ Global Consent Defaults ตามความต้องการของลูกค้าและนโยบายรายภูมิภาคที่ตรวจทานแล้ว</li><li>อีกทางหนึ่งคือย้ายการติดตั้งทั้งหมดเข้าไปใน container GTM เดียวแล้ว deploy GTM ผ่าน GTG หรือตั้งค่า GTG เองเพื่อให้ลูกค้าควบคุมลำดับการโหลดได้</li><li>รันการวินิจฉัยซ้ำกับทุก landing page รวมถึงลิงก์แคมเปญและ deep link</li></ol>
+<p data-l="en">U+C/Advanced Consent Mode is Netka's recommended path for GTG-enabled, consent-aware tags because it is compatible with manually controlled GTG. Basic mode remains available when Google tags must be blocked until consent.</p>
+<p data-l="th">U+C/Advanced Consent Mode เป็นแนวทางที่ Netka แนะนำสำหรับ tag ที่รองรับความยินยอมและเปิดใช้ GTG เพราะใช้ร่วมกับ GTG ที่ควบคุมเองได้ ส่วนโหมด Basic ยังใช้ได้เมื่อต้องบล็อก Google tag ไว้จนกว่าจะได้รับความยินยอม</p>
+</section>
+<section id="support">
+<h2><span data-l="en">Support escalation</span><span data-l="th">การติดต่อฝ่ายสนับสนุน</span></h2>
+<p data-l="en">Contact Netka support first for CMP, Consent Mode, GTM template, diagnostics, or GTG troubleshooting. Provide affected URLs, scan results, GTM container/version or gtag snippet, Tag Assistant evidence, timestamps, tested regions, and screenshots. Never place passwords or audit credentials in a public repository.</p>
+<p data-l="th">ติดต่อฝ่ายสนับสนุนของ Netka ก่อนเป็นอันดับแรกสำหรับปัญหา CMP, Consent Mode, เทมเพลต GTM, การวินิจฉัย หรือ GTG โดยแนบ URL ที่ได้รับผลกระทบ ผลการสแกน container/เวอร์ชันของ GTM หรือ gtag snippet หลักฐานจาก Tag Assistant เวลาที่เกิดเหตุ ภูมิภาคที่ทดสอบ และภาพหน้าจอ ห้ามใส่รหัสผ่านหรือข้อมูลสำหรับการตรวจไว้ใน repository สาธารณะ</p>
+<ul>
+<li><span data-l="en">Email</span><span data-l="th">อีเมล</span>: <a href="mailto:support@netkasystem.co.th"><code>support@netkasystem.co.th</code></a></li>
+<li><span data-l="en">Company</span><span data-l="th">บริษัท</span>: <a href="https://netkasystem.com">Netka System</a></li>
+</ul>
+</section>
+    </article>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <p><span data-l="en">Netka System Company Limited</span><span data-l="th">บริษัท เน็ตก้า ซิสเต็ม จำกัด</span> &middot; Developer ID dYmE5Zm</p>
+    <p><a href="https://github.com/netkasystem/NDPP-CMP-Template">GitHub</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
