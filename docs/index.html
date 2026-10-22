@@ -1,62 +1,106 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Netka CMP — Consent Mode resources</title>
+<title data-th="Netka CMP — แหล่งข้อมูล Consent Mode">Netka CMP — Consent Mode resources</title>
 <meta name="robots" content="noindex">
-<style>
-  :root {
-    --ground:#f5f7f9; --surface:#fff; --line:#d7dde5;
-    --ink:#171c24; --ink-soft:#4d5765; --ink-faint:#737f8f; --accent:#23457f;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --ground:#101319; --surface:#171b22; --line:#2c333f;
-            --ink:#e4e8ee; --ink-soft:#a8b2c0; --ink-faint:#7b8593; --accent:#8fb0e8; }
-  }
-  * { box-sizing:border-box; }
-  body { margin:0; background:var(--ground); color:var(--ink); line-height:1.6;
-         font-family:"Segoe UI",system-ui,-apple-system,sans-serif; }
-  .wrap { max-width:640px; margin:0 auto; padding:4rem 1.25rem; display:flex; flex-direction:column; gap:1.5rem; }
-  .eyebrow { font-family:Consolas,ui-monospace,monospace; font-size:.8rem; letter-spacing:.08em;
-             text-transform:uppercase; color:var(--ink-faint); }
-  h1 { font-size:1.8rem; margin:.3rem 0 0; }
-  p { margin:0; color:var(--ink-soft); }
-  a.card { display:block; background:var(--surface); border:1px solid var(--line); border-radius:4px;
-           padding:1rem 1.15rem; text-decoration:none; color:inherit; }
-  a.card:hover, a.card:focus-visible { border-color:var(--accent); }
-  a.card:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-  a.card strong { display:block; color:var(--accent); margin-bottom:.15rem; }
-  a.card span { color:var(--ink-soft); font-size:.9rem; }
-</style>
+<link rel="stylesheet" href="assets/site.css">
+<script src="assets/site.js"></script>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <div class="eyebrow">Netka System Company Limited &middot; Developer ID dYmE5Zm</div>
-    <h1>Consent Mode resources</h1>
-    <p>Public material for the Google CMP Partner Program review.</p>
-  </header>
 
-  <a class="card" href="./cmp-test/">
-    <strong>Consent Mode test site</strong>
-    <span>The Netka consent banner over a gtag implementation, with the consent commands shown on the page.</span>
-  </a>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="./"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#23457f"/><path d="M16 6.5l7.5 3v6c0 4.6-3.1 8.3-7.5 9.8-4.4-1.5-7.5-5.2-7.5-9.8v-6z" fill="none" stroke="#fff" stroke-width="2" stroke-linejoin="round"/><path d="M12.6 16.2l2.4 2.4 4.4-4.6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Netka CMP <small>Consent Mode</small></a>
+    <nav class="nav" aria-label="Pages">
+      <a href="./" aria-current="page"><span data-l="en">Home</span><span data-l="th">หน้าแรก</span></a>
+      <a href="cmp-test/"><span data-l="en">gtag test</span><span data-l="th">ทดสอบ gtag</span></a>
+      <a href="cmp-test-gtm/"><span data-l="en">GTM test</span><span data-l="th">ทดสอบ GTM</span></a>
+      <a href="evidence/"><span data-l="en">Evidence</span><span data-l="th">หลักฐาน</span></a>
+      <a href="guide/"><span data-l="en">Guide</span><span data-l="th">คู่มือ</span></a>
+    </nav>
+    <div class="lang" role="group" aria-label="Language / ภาษา">
+      <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-set-lang="th" aria-pressed="false">TH</button>
+    </div>
+  </div>
+</header>
 
-  <a class="card" href="./cmp-test-gtm/">
-    <strong>Consent Mode test site — Google Tag Manager</strong>
-    <span>The same banner delivered by the Netka CMP tag inside a container, which is the integration Netka recommends.</span>
-  </a>
+<section class="hero">
+  <div class="hero-in">
+    <div class="eyebrow"><span data-l="en">Netka System Company Limited</span><span data-l="th">บริษัท เน็ตก้า ซิสเต็ม จำกัด</span> &middot; Developer ID <span class="id">dYmE5Zm</span></div>
+    <h1><span data-l="en">Consent Mode resources</span><span data-l="th">แหล่งข้อมูล Consent Mode</span></h1>
+    <p class="lead">
+      <span data-l="en">Public material for the Google CMP Partner Program review.</span>
+      <span data-l="th">เอกสารสาธารณะสำหรับการพิจารณา Google CMP Partner Program</span>
+    </p>
+    <div class="chips">
+      <span class="chip chip-accent">Consent Mode v2</span>
+      <span class="chip">gtag</span>
+      <span class="chip">Google Tag Manager</span>
+    </div>
+  </div>
+</section>
 
-  <a class="card" href="./evidence/">
-    <strong>Review evidence</strong>
-    <span>Test-run captures and behaviour records supporting the application. No credentials.</span>
-  </a>
+<main class="main">
+  <div class="tiles">
+    <a class="tile" href="cmp-test/">
+      <div class="tile-head">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 5l-3 14"/></svg></span>
+        <strong><span data-l="en">Consent Mode test site</span><span data-l="th">หน้าทดสอบ Consent Mode</span></strong>
+      </div>
+      <p>
+        <span data-l="en">The Netka consent banner over a gtag implementation, with the consent commands shown on the page.</span>
+        <span data-l="th">แบนเนอร์ขอความยินยอมของ Netka บนเว็บที่ติดตั้งแบบ gtag พร้อมแสดงคำสั่ง consent บนหน้าเว็บ</span>
+      </p>
+      <span class="go"><span data-l="en">Open gtag test →</span><span data-l="th">เปิดหน้าทดสอบ gtag →</span></span>
+    </a>
 
-  <a class="card" href="./google-consent-mode-v2-and-gtg.md">
-    <strong>Consent Mode v2 and Google tag gateway guide</strong>
-    <span>Setup for Basic and Advanced configurations, regional defaults, and GTG with late consent.</span>
-  </a>
-</div>
+    <a class="tile" href="cmp-test-gtm/">
+      <div class="tile-head">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg></span>
+        <strong><span data-l="en">Consent Mode test site — Google Tag Manager</span><span data-l="th">หน้าทดสอบ Consent Mode — Google Tag Manager</span></strong>
+      </div>
+      <p>
+        <span data-l="en">The same banner delivered by the Netka CMP tag inside a container, which is the integration Netka recommends.</span>
+        <span data-l="th">แบนเนอร์ตัวเดียวกันที่ส่งผ่าน Netka CMP tag ใน container ซึ่งเป็นวิธีติดตั้งที่ Netka แนะนำ</span>
+      </p>
+      <span class="go"><span data-l="en">Open GTM test →</span><span data-l="th">เปิดหน้าทดสอบ GTM →</span></span>
+    </a>
+
+    <a class="tile" href="evidence/">
+      <div class="tile-head">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 13l2 2 4-4"/></svg></span>
+        <strong><span data-l="en">Review evidence</span><span data-l="th">หลักฐานประกอบการพิจารณา</span></strong>
+      </div>
+      <p>
+        <span data-l="en">Test-run captures and behaviour records supporting the application. No credentials.</span>
+        <span data-l="th">ภาพผลการทดสอบและบันทึกการทำงานที่ใช้ประกอบใบสมัคร ไม่มีข้อมูลรหัสผ่านหรือคีย์ใด ๆ</span>
+      </p>
+      <span class="go"><span data-l="en">View evidence →</span><span data-l="th">ดูหลักฐาน →</span></span>
+    </a>
+
+    <a class="tile" href="guide/">
+      <div class="tile-head">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 006.5 23H20v-5"/></svg></span>
+        <strong><span data-l="en">Consent Mode v2 and Google tag gateway guide</span><span data-l="th">คู่มือ Consent Mode v2 และ Google tag gateway</span></strong>
+      </div>
+      <p>
+        <span data-l="en">Setup for Basic and Advanced configurations, regional defaults, and GTG with late consent.</span>
+        <span data-l="th">การตั้งค่าแบบ Basic และ Advanced ค่าเริ่มต้นรายภูมิภาค และการใช้ GTG เมื่อพบ late consent</span>
+      </p>
+      <span class="go"><span data-l="en">Read the guide →</span><span data-l="th">อ่านคู่มือ →</span></span>
+    </a>
+  </div>
+</main>
+
+<footer class="foot">
+  <div class="foot-in">
+    <p><span data-l="en">Netka System Company Limited</span><span data-l="th">บริษัท เน็ตก้า ซิสเต็ม จำกัด</span> &middot; Developer ID dYmE5Zm</p>
+    <p><a href="https://github.com/netkasystem/NDPP-CMP-Template">GitHub</a></p>
+  </div>
+</footer>
+
 </body>
 </html>
