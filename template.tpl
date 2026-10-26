@@ -148,6 +148,7 @@ const JSON = require('JSON');
 const queryPermission = require('queryPermission');
 const gtagSet = require('gtagSet');
 const encodeUriComponent = require('encodeUriComponent');
+const decodeUriComponent = require('decodeUriComponent');
 
 const LOGTAG = 'NETKA.CMP >';
 const CONSENT_TYPES = {
@@ -355,6 +356,11 @@ const injectCmpScript = function() {
     completeFailure();
     return;
   }
+  // NDPP shows the Cookie Key already URL-encoded (...%3d%3d); the key itself is
+  // base64 (...==). Decode first so either pasted form is encoded exactly once.
+  // decodeUriComponent returns undefined for a malformed sequence: keep it as typed.
+  var decodedKey = decodeUriComponent(apiKey);
+  if (decodedKey) apiKey = decodedKey;
   var scriptURL = apiURL + '/?key=' + encodeUriComponent(apiKey);
   if (!queryPermission('inject_script', scriptURL)) {
     log(LOGTAG, 'Netka CMP Script does not have permission to be injected.');
@@ -1088,6 +1094,32 @@ scenarios:
     });
     assertApi('injectScript').wasNotCalled();
     assertApi('gtmOnFailure').wasCalled();
+- name: URL-encoded API key from NDPP is not encoded twice
+  code: |-
+    let injectedUrl;
+    mock('injectScript', function(url, onSuccess) { injectedUrl = url; onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'NIi55jzkApzJ4mnmHtxS2A%3d%3d',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      enableAutoBlock: false
+    });
+    assertThat(injectedUrl).isEqualTo('https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js/?key=NIi55jzkApzJ4mnmHtxS2A%3D%3D');
+    assertApi('gtmOnSuccess').wasCalled();
+- name: plain base64 API key is encoded once
+  code: |-
+    let injectedUrl;
+    mock('injectScript', function(url, onSuccess) { injectedUrl = url; onSuccess(); });
+    runCode({
+      apiURL: 'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js',
+      apiKey: 'NIi55jzkApzJ4mnmHtxS2A==',
+      enableConsentMode: true,
+      waitForUpdate: '500',
+      enableAutoBlock: false
+    });
+    assertThat(injectedUrl).isEqualTo('https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js/?key=NIi55jzkApzJ4mnmHtxS2A%3D%3D');
+    assertApi('gtmOnSuccess').wasCalled();
 - name: AutoBlock does not override GTM managed defaults
   code: |-
     mock('injectScript', function(url, onSuccess) { onSuccess(); });

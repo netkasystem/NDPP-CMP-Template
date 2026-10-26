@@ -80,6 +80,8 @@ function runScenario(code) {
     queryPermission: record('queryPermission', () => true),
     gtagSet: record('gtagSet'),
     encodeUriComponent: encodeURIComponent,
+    // GTM's decodeUriComponent returns undefined for malformed input; it never throws.
+    decodeUriComponent: (text) => { try { return decodeURIComponent(text); } catch (e) { return undefined; } },
     callInWindow: record('callInWindow'),
     copyFromWindow: record('copyFromWindow', name => windows[name]),
     callLater: record('callLater', fn => fn()),
@@ -140,6 +142,14 @@ function runScenario(code) {
               `calls: ${JSON.stringify(callsFor().map(c => c.args))}`
             );
           }
+        }
+      };
+    },
+    // Subset of GTM's assertThat used by the scenarios.
+    assertThat(actual) {
+      return {
+        isEqualTo(expected) {
+          if (actual !== expected) failures.push(`expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
         }
       };
     },
