@@ -52,6 +52,8 @@ function runTemplate(overrides = {}, options = {}) {
     queryPermission: record('queryPermission', permission),
     gtagSet: record('gtagSet'),
     encodeUriComponent: encodeURIComponent,
+    // GTM's decodeUriComponent returns undefined for malformed input; it never throws.
+    decodeUriComponent: (text) => { try { return decodeURIComponent(text); } catch (e) { return undefined; } },
     injectScript: record('injectScript', (url, onSuccess, onFailure) => {
       if (options.injectScript) {
         options.injectScript(url, onSuccess, onFailure, calls);
@@ -291,6 +293,38 @@ test('API key is encoded before constructing the permitted script URL', () => {
   assert.equal(
     url,
     'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js/?key=tenant%20key%26mode%3Dtest'
+  );
+});
+
+// NDPP shows the Cookie Key URL-encoded (…%3d%3d) while the key itself is base64
+// (…==). Customers paste either form; both must request the same script URL.
+test('URL-encoded API key copied from NDPP is not encoded twice', () => {
+  const runtime = runTemplate({ apiKey: 'NIi55jzkApzJ4mnmHtxS2A%3d%3d' });
+  const url = runtime.callsFor('injectScript')[0].args[0];
+
+  assert.equal(
+    url,
+    'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js/?key=NIi55jzkApzJ4mnmHtxS2A%3D%3D'
+  );
+});
+
+test('plain base64 API key is encoded once', () => {
+  const runtime = runTemplate({ apiKey: 'NIi55jzkApzJ4mnmHtxS2A==' });
+  const url = runtime.callsFor('injectScript')[0].args[0];
+
+  assert.equal(
+    url,
+    'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js/?key=NIi55jzkApzJ4mnmHtxS2A%3D%3D'
+  );
+});
+
+test('API key with a malformed percent sequence is encoded as typed', () => {
+  const runtime = runTemplate({ apiKey: 'abc%zz' });
+  const url = runtime.callsFor('injectScript')[0].args[0];
+
+  assert.equal(
+    url,
+    'https://ndppdev.netkasystem.co.th/api/cookie/cookiesetting.js/?key=abc%25zz'
   );
 });
 
