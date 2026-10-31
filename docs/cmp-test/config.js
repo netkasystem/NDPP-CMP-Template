@@ -22,7 +22,7 @@ window.NKS_TEST_CONFIG = {
   // Key of the banner record on the ndppdev review host, confirmed public by the
   // team. Stored decoded — the page applies encodeURIComponent once, so a
   // pre-encoded value here would arrive double-encoded and fail to decrypt.
-  cmpKey: "FGhGHEEv6o6UXUBA68UWtA==",
+  cmpKey: "IottN6haHON4nHcetMhrTw==",
 
   // GA4 measurement ID created for this page (property kept separate from the
   // corporate G-9EXHFKSLTQ so reviewer traffic never reaches real analytics).
